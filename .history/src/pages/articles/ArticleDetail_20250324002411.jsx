@@ -11,11 +11,9 @@ import {
     List,
     Table,
     Empty,
-    Collapse,
-    Radio
+    Collapse
 } from 'antd';
 import { articleAPI } from '../../api';
-import MarkdownPreview from '../../components/common/MarkdownPreview';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -25,7 +23,6 @@ function ArticleDetail() {
     const { id } = useParams(); // 从URL中获取文章ID
     const [article, setArticle] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [viewMode, setViewMode] = useState('text'); // 'text' 或 'markdown'
 
     useEffect(() => {
         fetchArticleDetail();
@@ -72,35 +69,15 @@ function ArticleDetail() {
 
                 <Tabs defaultActiveKey="1">
                     <TabPane tab="正文内容" key="1">
-                        <div style={{ marginBottom: 16 }}>
-                            <Radio.Group value={viewMode} onChange={e => setViewMode(e.target.value)}>
-                                <Radio.Button value="text">文本模式</Radio.Button>
-                                <Radio.Button value="markdown">Markdown模式</Radio.Button>
-                            </Radio.Group>
+                        <div style={{ whiteSpace: 'pre-wrap' }}>
+                            {article.content || '无内容'}
                         </div>
-                        {viewMode === 'text' ? (
-                            <div style={{ whiteSpace: 'pre-wrap' }}>
-                                {article.content || '无内容'}
-                            </div>
-                        ) : (
-                            <MarkdownPreview content={article.content || '无内容'} />
-                        )}
                     </TabPane>
 
                     <TabPane tab="清洗后内容" key="2">
-                        <div style={{ marginBottom: 16 }}>
-                            <Radio.Group value={viewMode} onChange={e => setViewMode(e.target.value)}>
-                                <Radio.Button value="text">文本模式</Radio.Button>
-                                <Radio.Button value="markdown">Markdown模式</Radio.Button>
-                            </Radio.Group>
+                        <div style={{ whiteSpace: 'pre-wrap' }}>
+                            {article.cleaned_content || article.processed_content || '未进行数据清洗'}
                         </div>
-                        {viewMode === 'text' ? (
-                            <div style={{ whiteSpace: 'pre-wrap' }}>
-                                {article.cleaned_content || article.processed_content || '未进行数据清洗'}
-                            </div>
-                        ) : (
-                            <MarkdownPreview content={article.cleaned_content || article.processed_content || '未进行数据清洗'} />
-                        )}
                         {article.cleaning_method === 'llm' && (
                             <div style={{ marginTop: 16 }}>
                                 <Tag color="blue">使用LLM智能清洗</Tag>

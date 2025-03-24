@@ -9,10 +9,9 @@ import {
     Typography,
     Space,
     notification,
-    Modal,
-    Tooltip
+    Modal
 } from 'antd';
-import { CloudDownloadOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { CloudDownloadOutlined } from '@ant-design/icons';
 import { exportAPI } from '../../api';
 
 const { Title, Text, Paragraph } = Typography;
@@ -28,17 +27,7 @@ function DataExport() {
         keyword: null
     });
     const [loading, setLoading] = useState(false);
-    const [setExportUrl] = useState(null);
-
-    // 文件格式选项
-    const formatOptions = [
-        { value: 'json', label: 'JSON', description: '完整的数据结构，包含所有字段' },
-        { value: 'csv', label: 'CSV', description: '表格格式，适合在Excel等工具中查看' },
-        { value: 'excel', label: 'Excel', description: '直接导出为Excel文件' },
-        { value: 'markdown', label: 'Markdown', description: 'Markdown格式，适合文档展示' },
-        { value: 'html', label: 'HTML', description: 'HTML格式，保留原始样式' },
-        { value: 'txt', label: 'TXT', description: '纯文本格式，仅包含正文内容' }
-    ];
+    const [exportUrl, setExportUrl] = useState(null);
 
     const onExport = async () => {
         try {
@@ -89,22 +78,16 @@ function DataExport() {
 
             <Card title="数据导出" style={{ marginBottom: 16 }}>
                 <Form layout="vertical">
-                    <Form.Item 
-                        label={
-                            <span>
-                                导出格式
-                                <Tooltip title="选择最适合你需求的导出格式">
-                                    <QuestionCircleOutlined style={{ marginLeft: 4 }} />
-                                </Tooltip>
-                            </span>
-                        }
-                    >
+                    <Form.Item label="导出格式">
                         <Select
                             value={format}
                             onChange={setFormat}
                             style={{ width: 200 }}
-                            options={formatOptions}
-                        />
+                        >
+                            <Option value="json">JSON</Option>
+                            <Option value="csv">CSV</Option>
+                            <Option value="excel">Excel</Option>
+                        </Select>
                     </Form.Item>
 
                     <Form.Item label="筛选条件">
@@ -167,18 +150,15 @@ function DataExport() {
                 </Paragraph>
                 <Title level={5}>支持的导出格式：</Title>
                 <ul>
-                    {formatOptions.map(option => (
-                        <li key={option.value}>
-                            <Text strong>{option.label}</Text>：{option.description}
-                        </li>
-                    ))}
+                    <li><Text strong>JSON</Text>：完整的数据结构，包含所有字段</li>
+                    <li><Text strong>CSV</Text>：表格格式，适合在Excel等工具中查看</li>
+                    <li><Text strong>Excel</Text>：直接导出为Excel文件</li>
                 </ul>
                 <Title level={5}>注意事项：</Title>
                 <ul>
                     <li>导出大量数据可能需要较长时间，请耐心等待</li>
                     <li>可以通过筛选条件缩小导出范围，提高导出速度</li>
                     <li>导出文件中不包含原始HTML内容，以减小文件大小</li>
-                    <li>不同格式的文件大小和导出速度可能有所不同</li>
                 </ul>
             </Card>
         </div>

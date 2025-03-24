@@ -28,7 +28,7 @@ function DataExport() {
         keyword: null
     });
     const [loading, setLoading] = useState(false);
-    const [setExportUrl] = useState(null);
+    const [exportUrl, setExportUrl] = useState(null);
 
     // 文件格式选项
     const formatOptions = [
