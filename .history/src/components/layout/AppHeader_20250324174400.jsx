@@ -12,8 +12,7 @@ import {
     DownOutlined,
     GlobalOutlined,
     BellOutlined,
-    DatabaseOutlined,
-    RobotOutlined
+    DatabaseOutlined
 } from '@ant-design/icons';
 import APIStatusModal from '../modals/APIStatusModal';
 import LLMSettingsModal from '../modals/LLMSettingsModal';
@@ -69,11 +68,11 @@ function AppHeader() {
     const [llmSettingsModalVisible, setLLMSettingsModalVisible] = useState(false);
 
     // 使用全局设置上下文
-    const { settings: globalSettings, checkAPIStatus } = useGlobalSettings();
+    const { settings, checkAPIStatus } = useGlobalSettings();
 
     // 获取当前启用的LLM提供商
     const getActiveLLMProvider = () => {
-        const { activeProvider } = globalSettings.llmSettings;
+        const { activeProvider } = settings.llmSettings;
         switch(activeProvider) {
             case 'cloud':
                 return '云服务 LLM';
@@ -88,10 +87,22 @@ function AppHeader() {
 
     // 获取当前启用的模型
     const getActiveModel = () => {
-        const { activeProvider } = globalSettings.llmSettings;
-        const config = globalSettings.llmSettings[activeProvider];
+        const { activeProvider } = settings.llmSettings;
+        const config = settings.llmSettings[activeProvider];
         return config?.model || 'gpt-3.5-turbo';
     };
+
+    // API状态图标
+    // const getApiStatusIcon = (status) => {
+    //     switch(status) {
+    //         case 'connected':
+    //             return <CheckCircleFilled style={{ color: '#52c41a' }} />;
+    //         case 'disconnected':
+    //             return <CloseCircleFilled style={{ color: '#f5222d' }} />;
+    //         default:
+    //             return <QuestionCircleFilled style={{ color: '#faad14' }} />;
+    //     }
+    // };
 
     // 定期检查API状态
     useEffect(() => {
@@ -112,10 +123,12 @@ function AppHeader() {
             {
                 key: '1',
                 label: (
-                    <Space>
-                        <RobotOutlined />
-                        <span>LLM 模型设置</span>
-                    </Space>
+                    <div style={{ padding: '8px 0' }}>
+                        <Space>
+                            <BulbOutlined />
+                            <Text>LLM模型设置</Text>
+                        </Space>
+                    </div>
                 ),
                 onClick: () => setLLMSettingsModalVisible(true)
             }
@@ -123,7 +136,7 @@ function AppHeader() {
     };
 
     // API状态异常数量
-    const apiIssueCount = Object.values(globalSettings.apiStatus || {})
+    const apiIssueCount = Object.values(settings.apiStatus || {})
         .filter(status => status !== 'connected' && status !== 'unknown')
         .length;
 
@@ -184,7 +197,7 @@ function AppHeader() {
             <APIStatusModal
                 visible={apiStatusModalVisible}
                 onCancel={() => setApiStatusModalVisible(false)}
-                apiStatus={globalSettings.apiStatus || {}}
+                apiStatus={settings.apiStatus || {}}
                 setLLMSettingsModalVisible={setLLMSettingsModalVisible}
             />
 

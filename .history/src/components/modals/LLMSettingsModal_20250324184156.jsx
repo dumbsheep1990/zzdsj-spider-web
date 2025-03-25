@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Modal,
     Form,
@@ -38,9 +38,6 @@ function LLMSettingsModal({ visible, onCancel }) {
     const [form] = Form.useForm();
     const [advancedMode, setAdvancedMode] = useState(false);
     const [activeTab, setActiveTab] = useState('cloud');
-    const [currentVectorProvider, setCurrentVectorProvider] = useState('ollama');
-    const [currentVectorDBType, setCurrentVectorDBType] = useState('chroma');
-    
     const { 
         settings, 
         updateVectorConfig, 
@@ -86,12 +83,6 @@ function LLMSettingsModal({ visible, onCancel }) {
             collection: settings?.vectorDB?.qdrant?.collection || 'default'
         }
     };
-    
-    // 初始化当前向量提供商和数据库类型
-    useEffect(() => {
-        setCurrentVectorProvider(vectorSettings.activeProvider);
-        setCurrentVectorDBType(vectorDB.type);
-    }, []);
 
     // 提交表单
     const handleSubmit = () => {
@@ -108,7 +99,6 @@ function LLMSettingsModal({ visible, onCancel }) {
 
     // 处理向量提供商变更
     const handleVectorProviderChange = (value) => {
-        setCurrentVectorProvider(value);
         setActiveVectorProvider(value);
         form.setFieldsValue({
             vector: {
@@ -119,8 +109,6 @@ function LLMSettingsModal({ visible, onCancel }) {
 
     // 处理向量数据库类型变更
     const handleVectorDBTypeChange = (value) => {
-        setCurrentVectorDBType(value);
-        
         // 先创建一个默认配置，确保有值可用
         const defaultDbConfig = {
             chroma: {
@@ -488,7 +476,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 向量化设置
                             </span>
                         }
-                        key="vector"
+                        key="4"
                     >
                         <Form.Item
                             label={
@@ -511,7 +499,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             />
                         </Form.Item>
 
-                        {currentVectorProvider === 'ollama' && (
+                        {vectorSettings.activeProvider === 'ollama' && (
                             <>
                                 <Form.Item
                                     label="模型"
@@ -543,7 +531,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorProvider === 'custom' && (
+                        {vectorSettings.activeProvider === 'custom' && (
                             <>
                                 <Form.Item
                                     label="模型名称"
@@ -617,7 +605,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             />
                         </Form.Item>
 
-                        {currentVectorDBType === 'chroma' && (
+                        {vectorDB.type === 'chroma' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
@@ -665,7 +653,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorDBType === 'milvus' && (
+                        {vectorDB.type === 'milvus' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
@@ -713,7 +701,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorDBType === 'qdrant' && (
+                        {vectorDB.type === 'qdrant' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
@@ -763,7 +751,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                     </TabPane>
                 </Tabs>
 
-                {activeTab !== "vector" && (
+                {activeTab !== "4" && (
                     <>
                         <Divider style={{ margin: '16px 0 0 0' }} />
 

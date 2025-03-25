@@ -48,27 +48,9 @@ import {
     BulbOutlined,
     ExpandOutlined
 } from '@ant-design/icons';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { crawlerAPI } from '../../api';
 import { useGlobalSettings } from '../../context/GlobalSettingsContext';
-
-// 全局CSS修复InputNumber输入框占位符垂直居中问题
-const GlobalStyle = createGlobalStyle`
-  .ant-input-number {
-    display: flex;
-    align-items: center;
-  }
-  
-  .ant-input-number-input {
-    display: flex !important;
-    align-items: center !important;
-  }
-  
-  .ant-input-number input::placeholder {
-    position: relative;
-    transform: translateY(0);
-  }
-`;
 
 const { Title, Text, Paragraph } = Typography;
 const { Panel } = Collapse;
@@ -76,7 +58,20 @@ const { TabPane } = Tabs;
 
 // 自定义InputNumber样式，解决placeholder垂直居中问题
 const StyledInputNumber = styled(InputNumber)`
-    // 不再需要自定义样式，由全局CSS处理
+    .ant-input-number-input {
+        height: 38px;
+        line-height: 38px;
+        padding-top: 0;
+        padding-bottom: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .ant-input-number-input::placeholder {
+        line-height: normal;
+        position: relative;
+        top: 0;
+    }
 `;
 
 // 添加样式组件
@@ -412,60 +407,12 @@ function CrawlerControl() {
 
     return (
         <div className="crawler-control">
-            <GlobalStyle />
             <Title level={4}>
                 <BugOutlined /> 爬虫控制
             </Title>
             <Paragraph>
                 配置和控制爬虫任务，支持高级爬取功能和LLM内容处理，可在爬取过程中自动进行数据清洗。
             </Paragraph>
-
-            {/* 固定在顶部的操作按钮 */}
-            <div style={{ 
-                position: 'sticky', 
-                top: '20px', 
-                zIndex: 100, 
-                background: 'rgba(240, 242, 245, 0.85)', 
-                backdropFilter: 'blur(10px)',
-                padding: '14px 18px', 
-                borderRadius: '10px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
-                marginBottom: '24px',
-                marginTop: '10px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                transition: 'all 0.3s ease'
-            }}>
-                <Button
-                    type="default"
-                    icon={<ReloadOutlined />}
-                    onClick={() => form.resetFields()}
-                >
-                    重置配置
-                </Button>
-                <Space>
-                    {isRunning && (
-                        <Button
-                            type="danger"
-                            icon={<PauseCircleOutlined />}
-                            onClick={onStopCrawler}
-                            loading={stopLoading}
-                        >
-                            停止爬虫
-                        </Button>
-                    )}
-                    <Button
-                        type="primary"
-                        onClick={() => form.submit()}
-                        icon={<PlayCircleOutlined />}
-                        loading={startLoading}
-                        disabled={isRunning}
-                    >
-                        {isRunning ? '爬虫运行中...' : '启动爬虫'}
-                    </Button>
-                </Space>
-            </div>
 
             <Tabs activeKey={activeTab} onChange={setActiveTab}>
                 <TabPane 
@@ -630,7 +577,7 @@ function CrawlerControl() {
                                         name="max_pages"
                                         label="最大页面数量 (可选)"
                                     >
-                                        <InputNumber
+                                        <StyledInputNumber
                                             min={1}
                                             max={10000}
                                             placeholder="不限制请留空"
@@ -643,7 +590,7 @@ function CrawlerControl() {
                                         name="max_depth"
                                         label="最大爬取深度 (可选)"
                                     >
-                                        <InputNumber
+                                        <StyledInputNumber
                                             min={1}
                                             max={100}
                                             placeholder="不限制请留空"
@@ -942,6 +889,41 @@ function CrawlerControl() {
                                 </>
                             )}
                         </StyledCard>
+                        
+                        <Row justify="space-between" style={{ marginTop: 24 }}>
+                            <Col>
+                                <Button
+                                    type="default"
+                                    icon={<ReloadOutlined />}
+                                    onClick={() => form.resetFields()}
+                                >
+                                    重置配置
+                                </Button>
+                            </Col>
+                            <Col>
+                                <Space>
+                                    {isRunning && (
+                                        <Button
+                                            type="danger"
+                                            icon={<PauseCircleOutlined />}
+                                            onClick={onStopCrawler}
+                                            loading={stopLoading}
+                                        >
+                                            停止爬虫
+                                        </Button>
+                                    )}
+                                    <Button
+                                        type="primary"
+                                        htmlType="submit"
+                                        icon={<PlayCircleOutlined />}
+                                        loading={startLoading}
+                                        disabled={isRunning}
+                                    >
+                                        {isRunning ? '爬虫运行中...' : '启动爬虫'}
+                                    </Button>
+                                </Space>
+                            </Col>
+                        </Row>
                     </Form>
                 </TabPane>
                 

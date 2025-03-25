@@ -25,7 +25,7 @@ import {
 import {
     DatabaseOutlined,
     QuestionCircleOutlined,
-    ClearOutlined,
+    CleanOutlined,
     RobotOutlined,
     ToolOutlined,
     SettingOutlined,
@@ -256,7 +256,7 @@ function DataCleaning() {
             notification.success({
                 message: '任务已启动',
                 description: '数据清洗任务已成功启动，请等待完成。',
-                icon: <ClearOutlined style={{ color: '#52c41a' }} />
+                icon: <CleanOutlined style={{ color: '#52c41a' }} />
             });
             setRunningCleaning(false);
         } catch (error) {
@@ -293,7 +293,7 @@ function DataCleaning() {
     return (
         <div className="data-cleaning">
             <Title level={4}>
-                <ClearOutlined /> 数据清洗
+                <CleanOutlined /> 数据清洗
             </Title>
             <Paragraph>
                 配置和执行数据清洗任务，支持基础清洗和LLM智能清洗，大幅提高内容质量。
@@ -575,7 +575,7 @@ function DataCleaning() {
                                         size="large"
                                         onClick={onRunCleaning}
                                         loading={runningCleaning}
-                                        icon={<ClearOutlined />}
+                                        icon={<CleanOutlined />}
                                     >
                                         开始数据清洗
                                     </Button>

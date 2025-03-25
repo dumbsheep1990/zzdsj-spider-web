@@ -1,4 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+
+// 创建全局设置上下文
 const GlobalSettingsContext = createContext();
 
 // 初始化全局设置

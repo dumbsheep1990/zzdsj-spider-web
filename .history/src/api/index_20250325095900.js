@@ -20,9 +20,6 @@ export const crawlerAPI = {
     // 启动爬虫
     startCrawler: (config) => api.post('/api/crawler/start', config),
 
-    // 通过文件导入URL启动爬虫
-    startCrawlerWithFile: (config) => api.post('/api/crawler/start-with-file', config),
-
     // 停止爬虫
     stopCrawler: () => api.post('/api/crawler/stop'),
 

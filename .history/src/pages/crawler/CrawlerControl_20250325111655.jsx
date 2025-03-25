@@ -20,8 +20,7 @@ import {
     Tag,
     Tabs,
     Slider,
-    Alert,
-    Modal
+    Alert
 } from 'antd';
 import {
     PlayCircleOutlined,
@@ -45,39 +44,15 @@ import {
     AimOutlined,
     DashboardOutlined,
     TableOutlined,
-    BulbOutlined,
-    ExpandOutlined
+    BulbOutlined
 } from '@ant-design/icons';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { crawlerAPI } from '../../api';
 import { useGlobalSettings } from '../../context/GlobalSettingsContext';
-
-// 全局CSS修复InputNumber输入框占位符垂直居中问题
-const GlobalStyle = createGlobalStyle`
-  .ant-input-number {
-    display: flex;
-    align-items: center;
-  }
-  
-  .ant-input-number-input {
-    display: flex !important;
-    align-items: center !important;
-  }
-  
-  .ant-input-number input::placeholder {
-    position: relative;
-    transform: translateY(0);
-  }
-`;
 
 const { Title, Text, Paragraph } = Typography;
 const { Panel } = Collapse;
 const { TabPane } = Tabs;
-
-// 自定义InputNumber样式，解决placeholder垂直居中问题
-const StyledInputNumber = styled(InputNumber)`
-    // 不再需要自定义样式，由全局CSS处理
-`;
 
 // 添加样式组件
 const StyledCard = styled(Card)`
@@ -174,7 +149,6 @@ function CrawlerControl() {
     });
     
     const { settings, setActiveLLMProvider } = useGlobalSettings();
-    const [showUrlModal, setShowUrlModal] = useState(false);
 
     // 文件格式选项
     const formatOptions = [
@@ -397,75 +371,14 @@ function CrawlerControl() {
 
     const isRunning = status.status === 'running';
 
-    // 处理URL Modal展示
-    const openUrlModal = () => {
-        setShowUrlModal(true);
-    };
-
-    const handleUrlModalOk = () => {
-        setShowUrlModal(false);
-    };
-
-    const handleUrlModalCancel = () => {
-        setShowUrlModal(false);
-    };
-
     return (
         <div className="crawler-control">
-            <GlobalStyle />
             <Title level={4}>
                 <BugOutlined /> 爬虫控制
             </Title>
             <Paragraph>
                 配置和控制爬虫任务，支持高级爬取功能和LLM内容处理，可在爬取过程中自动进行数据清洗。
             </Paragraph>
-
-            {/* 固定在顶部的操作按钮 */}
-            <div style={{ 
-                position: 'sticky', 
-                top: '20px', 
-                zIndex: 100, 
-                background: 'rgba(240, 242, 245, 0.85)', 
-                backdropFilter: 'blur(10px)',
-                padding: '14px 18px', 
-                borderRadius: '10px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
-                marginBottom: '24px',
-                marginTop: '10px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                transition: 'all 0.3s ease'
-            }}>
-                <Button
-                    type="default"
-                    icon={<ReloadOutlined />}
-                    onClick={() => form.resetFields()}
-                >
-                    重置配置
-                </Button>
-                <Space>
-                    {isRunning && (
-                        <Button
-                            type="danger"
-                            icon={<PauseCircleOutlined />}
-                            onClick={onStopCrawler}
-                            loading={stopLoading}
-                        >
-                            停止爬虫
-                        </Button>
-                    )}
-                    <Button
-                        type="primary"
-                        onClick={() => form.submit()}
-                        icon={<PlayCircleOutlined />}
-                        loading={startLoading}
-                        disabled={isRunning}
-                    >
-                        {isRunning ? '爬虫运行中...' : '启动爬虫'}
-                    </Button>
-                </Space>
-            </div>
 
             <Tabs activeKey={activeTab} onChange={setActiveTab}>
                 <TabPane 
@@ -507,18 +420,10 @@ function CrawlerControl() {
                                         rules={[{ required: true, message: '请输入主站URL' }]}
                                         tooltip="支持输入多个URL，一行一个URL地址"
                                     >
-                                        <Input 
-                                            placeholder="请输入主站URL，多个URL请一行一个" 
-                                            style={{ width: '100%', height: '38px' }} 
-                                            suffix={
-                                                <Tooltip title="放大编辑区域">
-                                                    <ExpandOutlined 
-                                                        style={{ cursor: 'pointer', color: '#1890ff' }} 
-                                                        onClick={openUrlModal}
-                                                    />
-                                                </Tooltip>
-                                            }
-                                            prefix={<GlobalOutlined />}
+                                        <Input.TextArea 
+                                            placeholder="请输入主站URL，多个URL请一行一个，如 https://www.gzlps.gov.cn/" 
+                                            autoSize={{ minRows: 2, maxRows: 6 }}
+                                            style={{ width: '100%' }}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -538,36 +443,6 @@ function CrawlerControl() {
                                     </Form.Item>
                                 </Col>
                             </Row>
-                            
-                            {/* URL编辑弹窗 */}
-                            <Modal
-                                title="批量编辑URL"
-                                open={showUrlModal}
-                                onOk={handleUrlModalOk}
-                                onCancel={handleUrlModalCancel}
-                                width={700}
-                                style={{ top: 20 }}
-                                bodyStyle={{ padding: '12px 24px' }}
-                            >
-                                <div style={{ marginBottom: 16 }}>
-                                    <Text>请输入要爬取的URL地址，每行一个URL：</Text>
-                                </div>
-                                <Form.Item
-                                    name="base_url"
-                                    noStyle
-                                >
-                                    <Input.TextArea 
-                                        autoSize={{ minRows: 10, maxRows: 20 }}
-                                        placeholder="https://www.example1.com/&#10;https://www.example2.com/&#10;https://www.example3.com/" 
-                                        style={{ width: '100%', marginBottom: '16px' }}
-                                    />
-                                </Form.Item>
-                                <div style={{ marginTop: 8 }}>
-                                    <Text type="secondary">
-                                        提示：可以从文本文件或电子表格复制多个URL，粘贴到此处。确保每个URL单独一行。
-                                    </Text>
-                                </div>
-                            </Modal>
                             
                             <Row gutter={16}>
                                 <Col span={24}>
@@ -634,7 +509,7 @@ function CrawlerControl() {
                                             min={1}
                                             max={10000}
                                             placeholder="不限制请留空"
-                                            style={{ width: '100%', height: '38px' }}
+                                            style={{ width: '100%', height: '38px' }} 
                                         />
                                     </Form.Item>
                                 </Col>
@@ -647,7 +522,7 @@ function CrawlerControl() {
                                             min={1}
                                             max={100}
                                             placeholder="不限制请留空"
-                                            style={{ width: '100%', height: '38px' }}
+                                            style={{ width: '100%', height: '38px' }} 
                                         />
                                     </Form.Item>
                                 </Col>
@@ -942,6 +817,41 @@ function CrawlerControl() {
                                 </>
                             )}
                         </StyledCard>
+                        
+                        <Row justify="space-between" style={{ marginTop: 24 }}>
+                            <Col>
+                                <Button
+                                    type="default"
+                                    icon={<ReloadOutlined />}
+                                    onClick={() => form.resetFields()}
+                                >
+                                    重置配置
+                                </Button>
+                            </Col>
+                            <Col>
+                                <Space>
+                                    {isRunning && (
+                                        <Button
+                                            type="danger"
+                                            icon={<PauseCircleOutlined />}
+                                            onClick={onStopCrawler}
+                                            loading={stopLoading}
+                                        >
+                                            停止爬虫
+                                        </Button>
+                                    )}
+                                    <Button
+                                        type="primary"
+                                        htmlType="submit"
+                                        icon={<PlayCircleOutlined />}
+                                        loading={startLoading}
+                                        disabled={isRunning}
+                                    >
+                                        {isRunning ? '爬虫运行中...' : '启动爬虫'}
+                                    </Button>
+                                </Space>
+                            </Col>
+                        </Row>
                     </Form>
                 </TabPane>
                 

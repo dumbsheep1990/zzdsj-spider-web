@@ -511,7 +511,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             />
                         </Form.Item>
 
-                        {currentVectorProvider === 'ollama' && (
+                        {vectorSettings.activeProvider === 'ollama' && (
                             <>
                                 <Form.Item
                                     label="模型"
@@ -543,7 +543,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorProvider === 'custom' && (
+                        {vectorSettings.activeProvider === 'custom' && (
                             <>
                                 <Form.Item
                                     label="模型名称"
@@ -617,7 +617,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             />
                         </Form.Item>
 
-                        {currentVectorDBType === 'chroma' && (
+                        {vectorDB.type === 'chroma' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
@@ -665,7 +665,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorDBType === 'milvus' && (
+                        {vectorDB.type === 'milvus' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
@@ -713,7 +713,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorDBType === 'qdrant' && (
+                        {vectorDB.type === 'qdrant' && (
                             <>
                                 <Form.Item
                                     label="主机地址"

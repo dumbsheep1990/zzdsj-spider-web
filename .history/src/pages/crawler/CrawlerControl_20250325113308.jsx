@@ -423,19 +423,17 @@ function CrawlerControl() {
             {/* 固定在顶部的操作按钮 */}
             <div style={{ 
                 position: 'sticky', 
-                top: '20px', 
+                top: 0, 
                 zIndex: 100, 
-                background: 'rgba(240, 242, 245, 0.85)', 
-                backdropFilter: 'blur(10px)',
-                padding: '14px 18px', 
-                borderRadius: '10px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
-                marginBottom: '24px',
-                marginTop: '10px',
+                background: 'rgba(255, 255, 255, 0.8)', 
+                backdropFilter: 'blur(8px)',
+                padding: '12px 16px', 
+                borderRadius: '8px',
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.06)',
+                marginBottom: '20px',
                 display: 'flex',
                 justifyContent: 'space-between',
-                border: '1px solid rgba(0, 0, 0, 0.08)',
-                transition: 'all 0.3s ease'
+                border: '1px solid rgba(0, 0, 0, 0.06)'
             }}>
                 <Button
                     type="default"

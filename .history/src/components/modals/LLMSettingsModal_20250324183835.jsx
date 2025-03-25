@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Modal,
     Form,
@@ -38,9 +38,6 @@ function LLMSettingsModal({ visible, onCancel }) {
     const [form] = Form.useForm();
     const [advancedMode, setAdvancedMode] = useState(false);
     const [activeTab, setActiveTab] = useState('cloud');
-    const [currentVectorProvider, setCurrentVectorProvider] = useState('ollama');
-    const [currentVectorDBType, setCurrentVectorDBType] = useState('chroma');
-    
     const { 
         settings, 
         updateVectorConfig, 
@@ -86,12 +83,6 @@ function LLMSettingsModal({ visible, onCancel }) {
             collection: settings?.vectorDB?.qdrant?.collection || 'default'
         }
     };
-    
-    // 初始化当前向量提供商和数据库类型
-    useEffect(() => {
-        setCurrentVectorProvider(vectorSettings.activeProvider);
-        setCurrentVectorDBType(vectorDB.type);
-    }, []);
 
     // 提交表单
     const handleSubmit = () => {
@@ -108,7 +99,6 @@ function LLMSettingsModal({ visible, onCancel }) {
 
     // 处理向量提供商变更
     const handleVectorProviderChange = (value) => {
-        setCurrentVectorProvider(value);
         setActiveVectorProvider(value);
         form.setFieldsValue({
             vector: {
@@ -119,34 +109,7 @@ function LLMSettingsModal({ visible, onCancel }) {
 
     // 处理向量数据库类型变更
     const handleVectorDBTypeChange = (value) => {
-        setCurrentVectorDBType(value);
-        
-        // 先创建一个默认配置，确保有值可用
-        const defaultDbConfig = {
-            chroma: {
-                host: 'localhost',
-                port: 8000,
-                collection: 'default'
-            },
-            milvus: {
-                host: 'localhost',
-                port: 19530,
-                collection: 'default'
-            },
-            qdrant: {
-                host: 'localhost',
-                port: 6333,
-                collection: 'default'
-            }
-        };
-        
-        // 使用当前配置或默认配置
-        const currentConfig = vectorDB[value] || defaultDbConfig[value];
-        
-        // 更新全局状态
-        updateVectorDBConfig(value, currentConfig);
-        
-        // 更新表单状态
+        updateVectorDBConfig(value, vectorDB[value]);
         form.setFieldsValue({
             vectorDB: {
                 type: value
@@ -488,7 +451,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 向量化设置
                             </span>
                         }
-                        key="vector"
+                        key="4"
                     >
                         <Form.Item
                             label={
@@ -511,7 +474,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             />
                         </Form.Item>
 
-                        {currentVectorProvider === 'ollama' && (
+                        {vectorSettings.activeProvider === 'ollama' && (
                             <>
                                 <Form.Item
                                     label="模型"
@@ -543,7 +506,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorProvider === 'custom' && (
+                        {vectorSettings.activeProvider === 'custom' && (
                             <>
                                 <Form.Item
                                     label="模型名称"
@@ -617,7 +580,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             />
                         </Form.Item>
 
-                        {currentVectorDBType === 'chroma' && (
+                        {vectorDB.type === 'chroma' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
@@ -665,7 +628,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorDBType === 'milvus' && (
+                        {vectorDB.type === 'milvus' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
@@ -713,7 +676,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorDBType === 'qdrant' && (
+                        {vectorDB.type === 'qdrant' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
@@ -763,74 +726,70 @@ function LLMSettingsModal({ visible, onCancel }) {
                     </TabPane>
                 </Tabs>
 
-                {activeTab !== "vector" && (
+                <Divider style={{ margin: '16px 0 0 0' }} />
+
+                <Form.Item
+                    label="高级设置"
+                    style={{ marginBottom: 0, marginTop: '16px' }}
+                >
+                    <Switch
+                        checked={advancedMode}
+                        onChange={setAdvancedMode}
+                        checkedChildren="开启"
+                        unCheckedChildren="关闭"
+                    />
+                </Form.Item>
+
+                {advancedMode && (
                     <>
-                        <Divider style={{ margin: '16px 0 0 0' }} />
+                        <Divider style={{ margin: '12px 0' }} />
 
                         <Form.Item
-                            label="高级设置"
-                            style={{ marginBottom: 0, marginTop: '16px' }}
+                            name={['advanced', 'temperature']}
+                            label={
+                                <Space>
+                                    <Text>温度参数</Text>
+                                    <Text type="secondary">(Temperature)</Text>
+                                </Space>
+                            }
+                            tooltip="控制生成文本的随机性，越高结果越随机多样，越低结果越确定"
                         >
-                            <Switch
-                                checked={advancedMode}
-                                onChange={setAdvancedMode}
-                                checkedChildren="开启"
-                                unCheckedChildren="关闭"
+                            <Slider
+                                min={0}
+                                max={2}
+                                step={0.1}
+                                marks={{ 0: '精确', 1: '平衡', 2: '创意' }}
                             />
                         </Form.Item>
 
-                        {advancedMode && (
-                            <>
-                                <Divider style={{ margin: '12px 0' }} />
+                        <Form.Item
+                            name={['advanced', 'max_tokens']}
+                            label={
+                                <Space>
+                                    <Text>最大输出长度</Text>
+                                    <Text type="secondary">(Max Tokens)</Text>
+                                </Space>
+                            }
+                            tooltip="限制单次响应的最大长度"
+                        >
+                            <InputNumber min={100} max={4000} step={100} style={{ width: '100%' }} />
+                        </Form.Item>
 
-                                <Form.Item
-                                    name={['advanced', 'temperature']}
-                                    label={
-                                        <Space>
-                                            <Text>温度参数</Text>
-                                            <Text type="secondary">(Temperature)</Text>
-                                        </Space>
-                                    }
-                                    tooltip="控制生成文本的随机性，越高结果越随机多样，越低结果越确定"
-                                >
-                                    <Slider
-                                        min={0}
-                                        max={2}
-                                        step={0.1}
-                                        marks={{ 0: '精确', 1: '平衡', 2: '创意' }}
-                                    />
-                                </Form.Item>
+                        <Form.Item
+                            name={['advanced', 'timeout']}
+                            label="请求超时时间 (秒)"
+                            tooltip="API请求的最大等待时间"
+                        >
+                            <InputNumber min={5} max={300} style={{ width: '100%' }} />
+                        </Form.Item>
 
-                                <Form.Item
-                                    name={['advanced', 'max_tokens']}
-                                    label={
-                                        <Space>
-                                            <Text>最大输出长度</Text>
-                                            <Text type="secondary">(Max Tokens)</Text>
-                                        </Space>
-                                    }
-                                    tooltip="限制单次响应的最大长度"
-                                >
-                                    <InputNumber min={100} max={4000} step={100} style={{ width: '100%' }} />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name={['advanced', 'timeout']}
-                                    label="请求超时时间 (秒)"
-                                    tooltip="API请求的最大等待时间"
-                                >
-                                    <InputNumber min={5} max={300} style={{ width: '100%' }} />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name={['advanced', 'retry_count']}
-                                    label="失败重试次数"
-                                    tooltip="API请求失败时的重试次数"
-                                >
-                                    <InputNumber min={0} max={10} style={{ width: '100%' }} />
-                                </Form.Item>
-                            </>
-                        )}
+                        <Form.Item
+                            name={['advanced', 'retry_count']}
+                            label="失败重试次数"
+                            tooltip="API请求失败时的重试次数"
+                        >
+                            <InputNumber min={0} max={10} style={{ width: '100%' }} />
+                        </Form.Item>
                     </>
                 )}
             </Form>

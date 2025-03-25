@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Modal,
     Form,
@@ -38,60 +38,14 @@ function LLMSettingsModal({ visible, onCancel }) {
     const [form] = Form.useForm();
     const [advancedMode, setAdvancedMode] = useState(false);
     const [activeTab, setActiveTab] = useState('cloud');
-    const [currentVectorProvider, setCurrentVectorProvider] = useState('ollama');
-    const [currentVectorDBType, setCurrentVectorDBType] = useState('chroma');
-    
     const { 
         settings, 
+        updateLLMConfig, 
+        setActiveLLMProvider, 
         updateVectorConfig, 
         setActiveVectorProvider,
         updateVectorDBConfig 
     } = useGlobalSettings();
-
-    // 合并默认值和设置
-    const vectorSettings = {
-        activeProvider: settings?.vectorSettings?.activeProvider || 'ollama',
-        ollama: {
-            model: settings?.vectorSettings?.ollama?.model || 'llama2',
-            apiUrl: settings?.vectorSettings?.ollama?.apiUrl || 'http://localhost:11434',
-            models: settings?.vectorSettings?.ollama?.models || [
-                { label: 'Llama 2', value: 'llama2', dimension: 4096 },
-                { label: 'Mistral', value: 'mistral', dimension: 4096 },
-                { label: 'Phi-2', value: 'phi', dimension: 2560 }
-            ]
-        },
-        custom: {
-            model: settings?.vectorSettings?.custom?.model || '',
-            apiUrl: settings?.vectorSettings?.custom?.apiUrl || '',
-            apiKey: settings?.vectorSettings?.custom?.apiKey || '',
-            dimension: settings?.vectorSettings?.custom?.dimension || 1536
-        }
-    };
-
-    const vectorDB = {
-        type: settings?.vectorDB?.type || 'chroma',
-        chroma: {
-            host: settings?.vectorDB?.chroma?.host || 'localhost',
-            port: settings?.vectorDB?.chroma?.port || 8000,
-            collection: settings?.vectorDB?.chroma?.collection || 'default'
-        },
-        milvus: {
-            host: settings?.vectorDB?.milvus?.host || 'localhost',
-            port: settings?.vectorDB?.milvus?.port || 19530,
-            collection: settings?.vectorDB?.milvus?.collection || 'default'
-        },
-        qdrant: {
-            host: settings?.vectorDB?.qdrant?.host || 'localhost',
-            port: settings?.vectorDB?.qdrant?.port || 6333,
-            collection: settings?.vectorDB?.qdrant?.collection || 'default'
-        }
-    };
-    
-    // 初始化当前向量提供商和数据库类型
-    useEffect(() => {
-        setCurrentVectorProvider(vectorSettings.activeProvider);
-        setCurrentVectorDBType(vectorDB.type);
-    }, []);
 
     // 提交表单
     const handleSubmit = () => {
@@ -104,54 +58,6 @@ function LLMSettingsModal({ visible, onCancel }) {
             .catch(error => {
                 console.error('验证失败:', error);
             });
-    };
-
-    // 处理向量提供商变更
-    const handleVectorProviderChange = (value) => {
-        setCurrentVectorProvider(value);
-        setActiveVectorProvider(value);
-        form.setFieldsValue({
-            vector: {
-                provider: value
-            }
-        });
-    };
-
-    // 处理向量数据库类型变更
-    const handleVectorDBTypeChange = (value) => {
-        setCurrentVectorDBType(value);
-        
-        // 先创建一个默认配置，确保有值可用
-        const defaultDbConfig = {
-            chroma: {
-                host: 'localhost',
-                port: 8000,
-                collection: 'default'
-            },
-            milvus: {
-                host: 'localhost',
-                port: 19530,
-                collection: 'default'
-            },
-            qdrant: {
-                host: 'localhost',
-                port: 6333,
-                collection: 'default'
-            }
-        };
-        
-        // 使用当前配置或默认配置
-        const currentConfig = vectorDB[value] || defaultDbConfig[value];
-        
-        // 更新全局状态
-        updateVectorDBConfig(value, currentConfig);
-        
-        // 更新表单状态
-        form.setFieldsValue({
-            vectorDB: {
-                type: value
-            }
-        });
     };
 
     // 云模型选项
@@ -254,45 +160,26 @@ function LLMSettingsModal({ visible, onCancel }) {
                 layout="vertical"
                 initialValues={{
                     cloud: {
-                        model: settings?.llmSettings?.cloud?.model || 'deepseek-7b',
-                        provider: settings?.llmSettings?.cloud?.provider || 'deepseek',
-                        api_key: settings?.llmSettings?.cloud?.api_key || '',
-                        api_base: settings?.llmSettings?.cloud?.api_base || '',
+                        model: 'deepseek-7b',
+                        provider: 'deepseek',
+                        api_key: '',
+                        api_base: '',
                     },
                     ollama: {
-                        model: settings?.llmSettings?.ollama?.model || 'llama2',
-                        api_url: settings?.llmSettings?.ollama?.api_url || 'http://localhost:11434',
+                        model: 'llama2',
+                        api_url: 'http://localhost:11434',
                     },
                     custom: {
-                        model: settings?.llmSettings?.custom?.model || '',
-                        api_url: settings?.llmSettings?.custom?.api_url || '',
-                        api_key: settings?.llmSettings?.custom?.api_key || '',
+                        model: '',
+                        api_url: '',
+                        api_key: '',
                     },
-                    active_provider: settings?.llmSettings?.activeProvider || 'cloud',
-                    advanced: settings?.llmSettings?.advanced || {
+                    active_provider: 'cloud',
+                    advanced: {
                         temperature: 0.7,
                         max_tokens: 1000,
                         timeout: 30,
                         retry_count: 3
-                    },
-                    vector: {
-                        provider: vectorSettings.activeProvider,
-                        ollama: {
-                            model: vectorSettings.ollama.model,
-                            apiUrl: vectorSettings.ollama.apiUrl,
-                        },
-                        custom: {
-                            model: vectorSettings.custom.model,
-                            apiUrl: vectorSettings.custom.apiUrl,
-                            apiKey: vectorSettings.custom.apiKey,
-                            dimension: vectorSettings.custom.dimension,
-                        }
-                    },
-                    vectorDB: {
-                        type: vectorDB.type,
-                        chroma: vectorDB.chroma,
-                        milvus: vectorDB.milvus,
-                        qdrant: vectorDB.qdrant
                     }
                 }}
             >
@@ -482,12 +369,7 @@ function LLMSettingsModal({ visible, onCancel }) {
 
                     {/* 向量化设置 */}
                     <TabPane
-                        tab={
-                            <span>
-                                <DatabaseOutlined />
-                                向量化设置
-                            </span>
-                        }
+                        tab={<><DatabaseOutlined /> 向量化设置</>}
                         key="vector"
                     >
                         <Form.Item
@@ -500,6 +382,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 </span>
                             }
                             name={['vector', 'provider']}
+                            initialValue={settings.vectorSettings.activeProvider}
                         >
                             <Select
                                 options={[
@@ -507,24 +390,27 @@ function LLMSettingsModal({ visible, onCancel }) {
                                     { label: '自定义 API', value: 'custom' }
                                 ]}
                                 style={{ width: 200 }}
-                                onChange={handleVectorProviderChange}
+                                onChange={(value) => {
+                                    setActiveVectorProvider(value);
+                                }}
                             />
                         </Form.Item>
 
-                        {currentVectorProvider === 'ollama' && (
+                        {settings.vectorSettings.activeProvider === 'ollama' && (
                             <>
                                 <Form.Item
                                     label="模型"
                                     name={['vector', 'ollama', 'model']}
+                                    initialValue={settings.vectorSettings.ollama.model}
                                 >
                                     <Select
-                                        options={vectorSettings.ollama.models}
+                                        options={settings.vectorSettings.ollama.models}
                                         style={{ width: 200 }}
                                         onChange={(value) => {
-                                            const model = vectorSettings.ollama.models.find(m => m.value === value);
+                                            const model = settings.vectorSettings.ollama.models.find(m => m.value === value);
                                             updateVectorConfig('ollama', {
                                                 model: value,
-                                                dimension: model?.dimension || 4096
+                                                dimension: model.dimension
                                             });
                                         }}
                                     />
@@ -533,6 +419,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 <Form.Item
                                     label="API地址"
                                     name={['vector', 'ollama', 'apiUrl']}
+                                    initialValue={settings.vectorSettings.ollama.apiUrl}
                                 >
                                     <Input
                                         onChange={(e) => {
@@ -543,11 +430,12 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorProvider === 'custom' && (
+                        {settings.vectorSettings.activeProvider === 'custom' && (
                             <>
                                 <Form.Item
                                     label="模型名称"
                                     name={['vector', 'custom', 'model']}
+                                    initialValue={settings.vectorSettings.custom.model}
                                 >
                                     <Input
                                         onChange={(e) => {
@@ -559,6 +447,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 <Form.Item
                                     label="API地址"
                                     name={['vector', 'custom', 'apiUrl']}
+                                    initialValue={settings.vectorSettings.custom.apiUrl}
                                 >
                                     <Input
                                         onChange={(e) => {
@@ -570,6 +459,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 <Form.Item
                                     label="API密钥"
                                     name={['vector', 'custom', 'apiKey']}
+                                    initialValue={settings.vectorSettings.custom.apiKey}
                                 >
                                     <Input.Password
                                         onChange={(e) => {
@@ -581,6 +471,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 <Form.Item
                                     label="向量维度"
                                     name={['vector', 'custom', 'dimension']}
+                                    initialValue={settings.vectorSettings.custom.dimension}
                                 >
                                     <InputNumber
                                         min={1}
@@ -605,6 +496,7 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 </span>
                             }
                             name={['vectorDB', 'type']}
+                            initialValue={settings.vectorDB.type}
                         >
                             <Select
                                 options={[
@@ -613,20 +505,23 @@ function LLMSettingsModal({ visible, onCancel }) {
                                     { label: 'Qdrant', value: 'qdrant' }
                                 ]}
                                 style={{ width: 200 }}
-                                onChange={handleVectorDBTypeChange}
+                                onChange={(value) => {
+                                    updateVectorDBConfig(value, settings.vectorDB[value]);
+                                }}
                             />
                         </Form.Item>
 
-                        {currentVectorDBType === 'chroma' && (
+                        {settings.vectorDB.type === 'chroma' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
                                     name={['vectorDB', 'chroma', 'host']}
+                                    initialValue={settings.vectorDB.chroma.host}
                                 >
                                     <Input
                                         onChange={(e) => {
                                             updateVectorDBConfig('chroma', {
-                                                ...vectorDB.chroma,
+                                                ...settings.vectorDB.chroma,
                                                 host: e.target.value
                                             });
                                         }}
@@ -636,13 +531,14 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 <Form.Item
                                     label="端口"
                                     name={['vectorDB', 'chroma', 'port']}
+                                    initialValue={settings.vectorDB.chroma.port}
                                 >
                                     <InputNumber
                                         min={1}
                                         max={65535}
                                         onChange={(value) => {
                                             updateVectorDBConfig('chroma', {
-                                                ...vectorDB.chroma,
+                                                ...settings.vectorDB.chroma,
                                                 port: value
                                             });
                                         }}
@@ -652,11 +548,12 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 <Form.Item
                                     label="集合名称"
                                     name={['vectorDB', 'chroma', 'collection']}
+                                    initialValue={settings.vectorDB.chroma.collection}
                                 >
                                     <Input
                                         onChange={(e) => {
                                             updateVectorDBConfig('chroma', {
-                                                ...vectorDB.chroma,
+                                                ...settings.vectorDB.chroma,
                                                 collection: e.target.value
                                             });
                                         }}
@@ -665,16 +562,17 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorDBType === 'milvus' && (
+                        {settings.vectorDB.type === 'milvus' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
                                     name={['vectorDB', 'milvus', 'host']}
+                                    initialValue={settings.vectorDB.milvus.host}
                                 >
                                     <Input
                                         onChange={(e) => {
                                             updateVectorDBConfig('milvus', {
-                                                ...vectorDB.milvus,
+                                                ...settings.vectorDB.milvus,
                                                 host: e.target.value
                                             });
                                         }}
@@ -684,13 +582,14 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 <Form.Item
                                     label="端口"
                                     name={['vectorDB', 'milvus', 'port']}
+                                    initialValue={settings.vectorDB.milvus.port}
                                 >
                                     <InputNumber
                                         min={1}
                                         max={65535}
                                         onChange={(value) => {
                                             updateVectorDBConfig('milvus', {
-                                                ...vectorDB.milvus,
+                                                ...settings.vectorDB.milvus,
                                                 port: value
                                             });
                                         }}
@@ -700,11 +599,12 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 <Form.Item
                                     label="集合名称"
                                     name={['vectorDB', 'milvus', 'collection']}
+                                    initialValue={settings.vectorDB.milvus.collection}
                                 >
                                     <Input
                                         onChange={(e) => {
                                             updateVectorDBConfig('milvus', {
-                                                ...vectorDB.milvus,
+                                                ...settings.vectorDB.milvus,
                                                 collection: e.target.value
                                             });
                                         }}
@@ -713,16 +613,17 @@ function LLMSettingsModal({ visible, onCancel }) {
                             </>
                         )}
 
-                        {currentVectorDBType === 'qdrant' && (
+                        {settings.vectorDB.type === 'qdrant' && (
                             <>
                                 <Form.Item
                                     label="主机地址"
                                     name={['vectorDB', 'qdrant', 'host']}
+                                    initialValue={settings.vectorDB.qdrant.host}
                                 >
                                     <Input
                                         onChange={(e) => {
                                             updateVectorDBConfig('qdrant', {
-                                                ...vectorDB.qdrant,
+                                                ...settings.vectorDB.qdrant,
                                                 host: e.target.value
                                             });
                                         }}
@@ -732,13 +633,14 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 <Form.Item
                                     label="端口"
                                     name={['vectorDB', 'qdrant', 'port']}
+                                    initialValue={settings.vectorDB.qdrant.port}
                                 >
                                     <InputNumber
                                         min={1}
                                         max={65535}
                                         onChange={(value) => {
                                             updateVectorDBConfig('qdrant', {
-                                                ...vectorDB.qdrant,
+                                                ...settings.vectorDB.qdrant,
                                                 port: value
                                             });
                                         }}
@@ -748,11 +650,12 @@ function LLMSettingsModal({ visible, onCancel }) {
                                 <Form.Item
                                     label="集合名称"
                                     name={['vectorDB', 'qdrant', 'collection']}
+                                    initialValue={settings.vectorDB.qdrant.collection}
                                 >
                                     <Input
                                         onChange={(e) => {
                                             updateVectorDBConfig('qdrant', {
-                                                ...vectorDB.qdrant,
+                                                ...settings.vectorDB.qdrant,
                                                 collection: e.target.value
                                             });
                                         }}
@@ -763,74 +666,70 @@ function LLMSettingsModal({ visible, onCancel }) {
                     </TabPane>
                 </Tabs>
 
-                {activeTab !== "vector" && (
+                <Divider style={{ margin: '16px 0 0 0' }} />
+
+                <Form.Item
+                    label="高级设置"
+                    style={{ marginBottom: 0, marginTop: '16px' }}
+                >
+                    <Switch
+                        checked={advancedMode}
+                        onChange={setAdvancedMode}
+                        checkedChildren="开启"
+                        unCheckedChildren="关闭"
+                    />
+                </Form.Item>
+
+                {advancedMode && (
                     <>
-                        <Divider style={{ margin: '16px 0 0 0' }} />
+                        <Divider style={{ margin: '12px 0' }} />
 
                         <Form.Item
-                            label="高级设置"
-                            style={{ marginBottom: 0, marginTop: '16px' }}
+                            name={['advanced', 'temperature']}
+                            label={
+                                <Space>
+                                    <Text>温度参数</Text>
+                                    <Text type="secondary">(Temperature)</Text>
+                                </Space>
+                            }
+                            tooltip="控制生成文本的随机性，越高结果越随机多样，越低结果越确定"
                         >
-                            <Switch
-                                checked={advancedMode}
-                                onChange={setAdvancedMode}
-                                checkedChildren="开启"
-                                unCheckedChildren="关闭"
+                            <Slider
+                                min={0}
+                                max={2}
+                                step={0.1}
+                                marks={{ 0: '精确', 1: '平衡', 2: '创意' }}
                             />
                         </Form.Item>
 
-                        {advancedMode && (
-                            <>
-                                <Divider style={{ margin: '12px 0' }} />
+                        <Form.Item
+                            name={['advanced', 'max_tokens']}
+                            label={
+                                <Space>
+                                    <Text>最大输出长度</Text>
+                                    <Text type="secondary">(Max Tokens)</Text>
+                                </Space>
+                            }
+                            tooltip="限制单次响应的最大长度"
+                        >
+                            <InputNumber min={100} max={4000} step={100} style={{ width: '100%' }} />
+                        </Form.Item>
 
-                                <Form.Item
-                                    name={['advanced', 'temperature']}
-                                    label={
-                                        <Space>
-                                            <Text>温度参数</Text>
-                                            <Text type="secondary">(Temperature)</Text>
-                                        </Space>
-                                    }
-                                    tooltip="控制生成文本的随机性，越高结果越随机多样，越低结果越确定"
-                                >
-                                    <Slider
-                                        min={0}
-                                        max={2}
-                                        step={0.1}
-                                        marks={{ 0: '精确', 1: '平衡', 2: '创意' }}
-                                    />
-                                </Form.Item>
+                        <Form.Item
+                            name={['advanced', 'timeout']}
+                            label="请求超时时间 (秒)"
+                            tooltip="API请求的最大等待时间"
+                        >
+                            <InputNumber min={5} max={300} style={{ width: '100%' }} />
+                        </Form.Item>
 
-                                <Form.Item
-                                    name={['advanced', 'max_tokens']}
-                                    label={
-                                        <Space>
-                                            <Text>最大输出长度</Text>
-                                            <Text type="secondary">(Max Tokens)</Text>
-                                        </Space>
-                                    }
-                                    tooltip="限制单次响应的最大长度"
-                                >
-                                    <InputNumber min={100} max={4000} step={100} style={{ width: '100%' }} />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name={['advanced', 'timeout']}
-                                    label="请求超时时间 (秒)"
-                                    tooltip="API请求的最大等待时间"
-                                >
-                                    <InputNumber min={5} max={300} style={{ width: '100%' }} />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name={['advanced', 'retry_count']}
-                                    label="失败重试次数"
-                                    tooltip="API请求失败时的重试次数"
-                                >
-                                    <InputNumber min={0} max={10} style={{ width: '100%' }} />
-                                </Form.Item>
-                            </>
-                        )}
+                        <Form.Item
+                            name={['advanced', 'retry_count']}
+                            label="失败重试次数"
+                            tooltip="API请求失败时的重试次数"
+                        >
+                            <InputNumber min={0} max={10} style={{ width: '100%' }} />
+                        </Form.Item>
                     </>
                 )}
             </Form>

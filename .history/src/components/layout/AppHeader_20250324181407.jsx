@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Layout, Typography, Space, Button, Badge, Dropdown, Tooltip, Avatar, Divider } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import {
     ApiOutlined,
     SettingOutlined,
@@ -65,6 +66,7 @@ const VerticalDivider = styled(Divider)`
 `;
 
 function AppHeader() {
+    const navigate = useNavigate();
     const [apiStatusModalVisible, setApiStatusModalVisible] = useState(false);
     const [llmSettingsModalVisible, setLLMSettingsModalVisible] = useState(false);
 
