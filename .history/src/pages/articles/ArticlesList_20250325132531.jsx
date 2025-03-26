@@ -48,8 +48,7 @@ import {
     ImportOutlined,
     ExportOutlined
 } from '@ant-design/icons';
-// mock API 数据，实际项目中替换为真实API调用
-// import { articleAPI } from '../../api';
+import { articleAPI } from '../../api';
 import styled from 'styled-components';
 
 const { Title, Paragraph, Text } = Typography;
@@ -262,6 +261,7 @@ function ArticlesList() {
     });
     const [viewMode, setViewMode] = useState('list'); // list or table
     const [selectedArticles, setSelectedArticles] = useState([]);
+    const [batchActionVisible, setBatchActionVisible] = useState(false);
     const [sortField, setSortField] = useState('crawled_at');
     const [sortOrder, setSortOrder] = useState('descend');
     const [statistics, setStatistics] = useState({
@@ -281,7 +281,7 @@ function ArticlesList() {
     const fetchArticles = async () => {
         try {
             setLoading(true);
-
+            
             // 模拟API调用延迟
             await new Promise(resolve => setTimeout(resolve, 500));
             
@@ -351,7 +351,7 @@ function ArticlesList() {
         setFilters({ ...filters, ...newFilters });
         setPage(1); // 重置分页
     };
-
+    
     const handleBatchAction = (action) => {
         if (selectedArticles.length === 0) {
             message.warning('请先选择文章');
@@ -395,127 +395,6 @@ function ArticlesList() {
         setArticles(updatedArticles);
         message.success(`${isFeatured ? '取消' : '设为'}重点文章成功`);
     };
-    
-    // 表格列配置
-    const columns = [
-        {
-            title: '标题',
-            dataIndex: 'title',
-            key: 'title',
-            render: (text, record) => (
-                <div>
-                    <a 
-                        onClick={() => navigate(`/article/${record._id}`)}
-                        style={{ fontWeight: 500 }}
-                    >
-                        {text || '无标题'}
-                    </a>
-                    {record.is_featured && (
-                        <Tag color="success" style={{ marginLeft: 8 }}>重点</Tag>
-                    )}
-                    {record.has_attachments && (
-                        <Tag color="blue" style={{ marginLeft: 8 }}>附件</Tag>
-                    )}
-                </div>
-            )
-        },
-        {
-            title: '分类',
-            dataIndex: 'category',
-            key: 'category',
-            width: 120,
-        },
-        {
-            title: '站点',
-            dataIndex: 'domain',
-            key: 'domain',
-            width: 180,
-        },
-        {
-            title: '发布日期',
-            dataIndex: 'publish_date',
-            key: 'publish_date',
-            width: 120,
-            render: (text) => text || '未知',
-            sorter: true
-        },
-        {
-            title: '字数',
-            dataIndex: 'word_count',
-            key: 'word_count',
-            width: 100,
-            render: (count) => `${count} 字`,
-            sorter: true
-        },
-        {
-            title: '提取方式',
-            dataIndex: 'is_llm_extracted',
-            key: 'is_llm_extracted',
-            width: 120,
-            render: (text) => (
-                text ? <Tag color="purple">LLM智能提取</Tag> : <Tag>常规提取</Tag>
-            ),
-            filters: [
-                { text: 'LLM智能提取', value: true },
-                { text: '常规提取', value: false }
-            ],
-            onFilter: (value, record) => record.is_llm_extracted === value
-        },
-        {
-            title: '爬取时间',
-            dataIndex: 'crawled_at',
-            key: 'crawled_at',
-            width: 180,
-            render: (text) => new Date(text).toLocaleString(),
-            sorter: true
-        },
-        {
-            title: '操作',
-            key: 'action',
-            width: 200,
-            render: (_, record) => (
-                <Space size="small">
-                    <Button
-                        type="text"
-                        size="small"
-                        icon={<EyeOutlined />}
-                        onClick={() => navigate(`/article/${record._id}`)}
-                    >
-                        查看
-                    </Button>
-                    <Tooltip title={record.is_featured ? '取消重点' : '设为重点'}>
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={record.is_featured ? <StarFilled style={{ color: '#faad14' }} /> : <StarOutlined />}
-                            onClick={() => toggleFeatured(record._id, record.is_featured)}
-                        />
-                    </Tooltip>
-                    <Dropdown
-                        overlay={
-                            <Menu>
-                                <Menu.Item key="edit" icon={<EditOutlined />}>
-                                    编辑文章
-                                </Menu.Item>
-                                <Menu.Item key="download" icon={<DownloadOutlined />}>
-                                    下载文章
-                                </Menu.Item>
-                                <Menu.Item key="delete" icon={<DeleteOutlined />} danger>
-                                    删除文章
-                                </Menu.Item>
-                            </Menu>
-                        }
-                    >
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={<EllipsisOutlined />}
-                        />
-                    </Dropdown>
-                </Space>
-            )
-        }
-    ];
     
     // 渲染列表视图
     const renderListView = () => (
@@ -732,9 +611,9 @@ function ArticlesList() {
                 <Row justify="space-between" align="middle">
                     <Col>
                         <Title level={4}>文章管理中心</Title>
-            <Paragraph>
+                        <Paragraph>
                             查看、分析和管理已爬取的文章内容，支持高级筛选、批量操作和数据统计。
-            </Paragraph>
+                        </Paragraph>
                     </Col>
                     <Col>
                         <Space>
@@ -779,22 +658,22 @@ function ArticlesList() {
                         <div className="filter-section">
                             <Row gutter={[16, 16]}>
                                 <Col span={8}>
-                        <Input.Search
+                                    <Input.Search
                                         placeholder="搜索文章标题或内容"
-                            allowClear
-                            onSearch={(value) => onFilterChange({ keyword: value })}
-                        />
+                                        allowClear
+                                        onSearch={(value) => onFilterChange({ keyword: value })}
+                                    />
                                 </Col>
                                 <Col span={8}>
-                        <Select
-                            placeholder="选择站点"
-                            allowClear
+                                    <Select
+                                        placeholder="选择站点"
+                                        allowClear
                                         style={{ width: '100%' }}
-                            onChange={(value) => onFilterChange({ domain: value })}
-                        >
-                            <Option value="www.gzlps.gov.cn">www.gzlps.gov.cn</Option>
-                            <Option value="jyj.gzlps.gov.cn">jyj.gzlps.gov.cn</Option>
-                            <Option value="zjj.gzlps.gov.cn">zjj.gzlps.gov.cn</Option>
+                                        onChange={(value) => onFilterChange({ domain: value })}
+                                    >
+                                        <Option value="www.gzlps.gov.cn">www.gzlps.gov.cn</Option>
+                                        <Option value="jyj.gzlps.gov.cn">jyj.gzlps.gov.cn</Option>
+                                        <Option value="zjj.gzlps.gov.cn">zjj.gzlps.gov.cn</Option>
                                     </Select>
                                 </Col>
                                 <Col span={8}>
@@ -809,51 +688,51 @@ function ArticlesList() {
                                         <Option value="公告">公告</Option>
                                         <Option value="规划公示">规划公示</Option>
                                         <Option value="通知">通知</Option>
-                        </Select>
+                                    </Select>
                                 </Col>
                                 <Col span={8}>
-                        <RangePicker
+                                    <RangePicker
                                         style={{ width: '100%' }}
-                            onChange={(dates) => {
-                                if (dates) {
-                                    onFilterChange({
-                                        start_date: dates[0]?.format('YYYY-MM-DD'),
-                                        end_date: dates[1]?.format('YYYY-MM-DD')
-                                    });
-                                } else {
-                                    onFilterChange({ start_date: null, end_date: null });
-                                }
-                            }}
-                        />
+                                        onChange={(dates) => {
+                                            if (dates) {
+                                                onFilterChange({
+                                                    start_date: dates[0]?.format('YYYY-MM-DD'),
+                                                    end_date: dates[1]?.format('YYYY-MM-DD')
+                                                });
+                                            } else {
+                                                onFilterChange({ start_date: null, end_date: null });
+                                            }
+                                        }}
+                                    />
                                 </Col>
                                 <Col span={16}>
                                     <Space>
-                        <Button
-                            type="primary"
-                            icon={<SearchOutlined />}
-                            onClick={fetchArticles}
-                        >
-                            搜索
-                        </Button>
-                        <Button
-                            icon={<ReloadOutlined />}
-                            onClick={() => {
-                                setFilters({
-                                    domain: null,
-                                    start_date: null,
-                                    end_date: null,
+                                        <Button
+                                            type="primary"
+                                            icon={<SearchOutlined />}
+                                            onClick={fetchArticles}
+                                        >
+                                            搜索
+                                        </Button>
+                                        <Button
+                                            icon={<ReloadOutlined />}
+                                            onClick={() => {
+                                                setFilters({
+                                                    domain: null,
+                                                    start_date: null,
+                                                    end_date: null,
                                                     keyword: null,
                                                     category: null,
                                                     tags: [],
                                                     is_featured: null,
                                                     has_attachments: null
-                                });
-                                setPage(1);
-                                fetchArticles();
-                            }}
-                        >
-                            重置筛选
-                        </Button>
+                                                });
+                                                setPage(1);
+                                                fetchArticles();
+                                            }}
+                                        >
+                                            重置筛选
+                                        </Button>
                                         <Dropdown
                                             overlay={
                                                 <Menu>
@@ -914,11 +793,11 @@ function ArticlesList() {
                                                 高级筛选
                                             </Button>
                                         </Dropdown>
-                    </Space>
+                                    </Space>
                                 </Col>
                             </Row>
-                </div>
-
+                        </div>
+                        
                         {viewMode === 'list' ? renderListView() : renderTableView()}
                     </TabPane>
                     <TabPane 

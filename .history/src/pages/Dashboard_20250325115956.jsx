@@ -402,7 +402,7 @@ function Dashboard() {
             
             const subdomainsRes = await crawlerAPI.getSubdomains();
             setSubdomains(subdomainsRes.data);
-
+            
             // 更新内容类型分布和响应状态码分布
             setChartData(prev => ({
                 ...prev,
@@ -573,9 +573,9 @@ function Dashboard() {
             <div className="dashboard-header">
                 <div>
                     <Title level={4}><DashboardOutlined /> 系统仪表盘</Title>
-                <Paragraph>
+                    <Paragraph>
                         智能爬虫系统数据分析与监控中心，提供实时状态、性能监控和数据统计。
-                </Paragraph>
+                    </Paragraph>
                 </div>
                 <Space>
                     {dataInitialized && 
@@ -603,7 +603,7 @@ function Dashboard() {
                 <Row gutter={[16, 16]} className="status-card-row">
                     <Col xs={24} sm={12} md={6}>
                         <Card className="status-card">
-                        <Statistic
+                            <Statistic
                                 title={
                                     <span>
                                         爬虫状态
@@ -615,20 +615,20 @@ function Dashboard() {
                                 }
                                 value={
                                     status.status === 'running' ? '运行中' :
-                                status.status === 'completed' ? '已完成' :
+                                    status.status === 'completed' ? '已完成' :
                                     status.status === 'stopped' ? '已停止' :
                                     status.status === 'error' ? '出错' : '未开始'
                                 }
                                 valueStyle={{ 
                                     color: status.status === 'running' ? '#1890ff' :
-                                    status.status === 'completed' ? '#52c41a' :
+                                           status.status === 'completed' ? '#52c41a' :
                                            status.status === 'error' ? '#f5222d' : '#000000' 
                                 }}
                                 prefix={<DashboardOutlined />}
-                        />
+                            />
                             <div className="status-detail">
                                 <Text type="secondary">运行时间: {getRunningTime()}</Text>
-                    </div>
+                            </div>
                         </Card>
                     </Col>
                     <Col xs={24} sm={12} md={6}>
@@ -646,7 +646,7 @@ function Dashboard() {
                                     status="active" 
                                     showInfo={false} 
                                 />
-                        </div>
+                            </div>
                         </Card>
                     </Col>
                     <Col xs={24} sm={12} md={6}>
@@ -661,8 +661,8 @@ function Dashboard() {
                                 <Text type="secondary">
                                     约占URL的{Math.round((status.articles_found || 0) / (status.visited_urls || 1) * 100)}%
                                 </Text>
-                    </div>
-                </Card>
+                            </div>
+                        </Card>
                     </Col>
                     <Col xs={24} sm={12} md={6}>
                         <Card className="status-card">
@@ -676,8 +676,8 @@ function Dashboard() {
                                 <Text type="secondary">
                                     已爬取: {subdomains.filter(s => s.crawled).length} 个
                                 </Text>
-                        </div>
-                    </Card>
+                            </div>
+                        </Card>
                     </Col>
                 </Row>
                 
@@ -902,10 +902,10 @@ function Dashboard() {
                                 }
                             >
                                 {subdomains.length > 0 ? (
-                    <List
-                        size="small"
-                        dataSource={subdomains}
-                        renderItem={item => (
+                                    <List
+                                        size="small"
+                                        dataSource={subdomains}
+                                        renderItem={item => (
                                             <List.Item
                                                 actions={[
                                                     <Badge 
@@ -991,7 +991,7 @@ function Dashboard() {
                                                             'red'
                                                         }>
                                                             {code}
-                                    </Tag>
+                                                        </Tag>
                                                         <span style={{ marginLeft: 8 }}>
                                                             {code === '200' ? 'OK' :
                                                             code === '301' ? '永久重定向' :
@@ -1124,15 +1124,15 @@ function Dashboard() {
                                                     '0%': '#52c41a',
                                                     '100%': '#87d068',
                                                 }}
-                    />
-                </Card>
+                                            />
+                                        </Card>
                                     </Col>
                                 </Row>
                             </Card>
                         </Spin>
                     </TabPane>
                 </Tabs>
-        </Spin>
+            </Spin>
         </DashboardContainer>
     );
 }

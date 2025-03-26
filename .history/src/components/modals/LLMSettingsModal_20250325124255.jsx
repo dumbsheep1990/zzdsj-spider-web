@@ -14,8 +14,7 @@ import {
     InputNumber,
     Alert,
     Tabs,
-    Tooltip,
-    message
+    Tooltip
 } from 'antd';
 import {
     RobotOutlined,
@@ -27,11 +26,9 @@ import {
     DesktopOutlined,
     ApartmentOutlined,
     DatabaseOutlined,
-    QuestionCircleOutlined,
-    LinkOutlined
+    QuestionCircleOutlined
 } from '@ant-design/icons';
 import { useGlobalSettings } from '../../context/GlobalSettingsContext';
-import { llmAPI, vectorAPI } from '../../api';
 
 const { Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -48,8 +45,7 @@ function LLMSettingsModal({ visible, onCancel }) {
         settings, 
         updateVectorConfig, 
         setActiveVectorProvider,
-        updateVectorDBConfig,
-        updateLLMConfig
+        updateVectorDBConfig 
     } = useGlobalSettings();
 
     // 合并默认值和设置
@@ -98,62 +94,16 @@ function LLMSettingsModal({ visible, onCancel }) {
     }, []);
 
     // 提交表单
-    const handleSubmit = async () => {
-        try {
-            const values = await form.validateFields();
-            
-            // 保存LLM配置
-            await llmAPI.saveConfig({
-                activeProvider: values.active_provider,
-                cloud: values.cloud,
-                ollama: values.ollama,
-                custom: values.custom,
-                advanced: values.advanced
+    const handleSubmit = () => {
+        form.validateFields()
+            .then(values => {
+                console.log('LLM设置:', values);
+                // 这里应该是保存设置的逻辑
+                onCancel();
+            })
+            .catch(error => {
+                console.error('验证失败:', error);
             });
-            
-            // 保存向量化配置
-            await vectorAPI.saveConfig({
-                provider: values.vector.provider,
-                ollama: values.vector.ollama,
-                custom: values.vector.custom
-            });
-            
-            // 更新全局设置
-            updateLLMConfig(values.active_provider, {
-                ...values[values.active_provider],
-                advanced: values.advanced
-            });
-            
-            updateVectorConfig(values.vector.provider, values.vector[values.vector.provider]);
-            
-            message.success('配置保存成功');
-            onCancel();
-        } catch (error) {
-            console.error('保存配置失败:', error);
-            message.error('保存配置失败: ' + error.message);
-        }
-    };
-
-    // 测试连接
-    const testConnection = async (provider) => {
-        try {
-            const values = await form.validateFields();
-            const config = values[provider];
-            
-            const result = await llmAPI.testConnection({
-                provider,
-                ...config
-            });
-            
-            if (result.data.connected) {
-                message.success(`${provider} 连接测试成功`);
-            } else {
-                message.error(`${provider} 连接测试失败: ${result.data.message}`);
-            }
-        } catch (error) {
-            console.error('连接测试失败:', error);
-            message.error('连接测试失败: ' + error.message);
-        }
     };
 
     // 处理向量提供商变更
@@ -283,9 +233,6 @@ function LLMSettingsModal({ visible, onCancel }) {
             onCancel={onCancel}
             width={700}
             footer={[
-                <Button key="test" icon={<LinkOutlined />} onClick={() => testConnection(activeTab)}>
-                    测试连接
-                </Button>,
                 <Button key="reset" onClick={resetToDefault}>
                     恢复默认
                 </Button>,

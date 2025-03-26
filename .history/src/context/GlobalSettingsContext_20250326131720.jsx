@@ -1,5 +1,4 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { llmAPI, vectorAPI, systemAPI } from '../api';
 const GlobalSettingsContext = createContext();
 
 // 初始化全局设置
@@ -218,30 +217,21 @@ export function GlobalSettingsProvider({ children }) {
     // 检查API状态
     const checkAPIStatus = async () => {
         try {
-            // 获取系统状态
-            const systemStatus = await systemAPI.getStatus();
-            
-            // 获取LLM服务状态
-            const llmStatus = await llmAPI.testConnection(settings.llmSettings);
-            
-            // 获取向量化服务状态
-            const vectorStatus = await vectorAPI.testConnection(settings.vectorSettings);
-            
-            // 更新API状态
-            const newStatus = {
-                ...settings.apiStatus,
-                backend: systemStatus.data.status === 'running' ? 'connected' : 'disconnected',
-                llm: llmStatus.data.connected ? 'connected' : 'disconnected',
-                vector: vectorStatus.data.connected ? 'connected' : 'disconnected',
-                ollama: systemStatus.data.services.ollama ? 'connected' : 'disconnected'
+            // 模拟API检查
+            // 实际应用中应该是真实的API调用
+            const mockStatus = {
+                openai: Math.random() > 0.2 ? 'connected' : 'disconnected',
+                ollama: Math.random() > 0.2 ? 'connected' : 'error',
+                backend: 'connected',
+                vectorDB: Math.random() > 0.2 ? 'connected' : 'error'
             };
 
             setSettings(prevSettings => ({
                 ...prevSettings,
-                apiStatus: newStatus
+                apiStatus: mockStatus
             }));
 
-            return newStatus;
+            return mockStatus;
         } catch (error) {
             console.error('检查API状态出错:', error);
             return settings.apiStatus;

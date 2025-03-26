@@ -30,10 +30,10 @@ function APIStatusModal({ visible, onCancel, setLLMSettingsModalVisible }) {
             const systemStatus = await systemAPI.getStatus();
             
             // 获取LLM服务状态
-            await llmAPI.testConnection(settings.llmSettings);
+            const llmStatus = await llmAPI.testConnection(settings.llmSettings);
             
             // 获取向量化服务状态
-            await vectorAPI.testConnection(settings.vectorSettings);
+            const vectorStatus = await vectorAPI.testConnection(settings.vectorSettings);
             
             // 更新状态
             await checkAPIStatus();

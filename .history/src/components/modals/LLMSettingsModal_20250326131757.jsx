@@ -28,7 +28,7 @@ import {
     ApartmentOutlined,
     DatabaseOutlined,
     QuestionCircleOutlined,
-    LinkOutlined
+    TestConnectionOutlined
 } from '@ant-design/icons';
 import { useGlobalSettings } from '../../context/GlobalSettingsContext';
 import { llmAPI, vectorAPI } from '../../api';
@@ -283,7 +283,7 @@ function LLMSettingsModal({ visible, onCancel }) {
             onCancel={onCancel}
             width={700}
             footer={[
-                <Button key="test" icon={<LinkOutlined />} onClick={() => testConnection(activeTab)}>
+                <Button key="test" icon={<TestConnectionOutlined />} onClick={() => testConnection(activeTab)}>
                     测试连接
                 </Button>,
                 <Button key="reset" onClick={resetToDefault}>

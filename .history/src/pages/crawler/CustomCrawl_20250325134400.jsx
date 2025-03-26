@@ -707,7 +707,7 @@ function CustomCrawl() {
                         </Col>
                         <Col span={8}>
                             <Card size="small" title="子元素选择器">
-                                <div className="selector-example">.content {">"} p</div>
+                                <div className="selector-example">.content > p</div>
                                 <div>选择直接子元素为p的.content元素</div>
                             </Card>
                         </Col>

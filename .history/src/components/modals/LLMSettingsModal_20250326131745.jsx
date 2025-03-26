@@ -28,7 +28,7 @@ import {
     ApartmentOutlined,
     DatabaseOutlined,
     QuestionCircleOutlined,
-    LinkOutlined
+    TestConnectionOutlined
 } from '@ant-design/icons';
 import { useGlobalSettings } from '../../context/GlobalSettingsContext';
 import { llmAPI, vectorAPI } from '../../api';
@@ -137,23 +137,16 @@ function LLMSettingsModal({ visible, onCancel }) {
     // 测试连接
     const testConnection = async (provider) => {
         try {
-            const values = await form.validateFields();
-            const config = values[provider];
-            
-            const result = await llmAPI.testConnection({
-                provider,
-                ...config
+    const handleSubmit = () => {
+        form.validateFields()
+            .then(values => {
+                console.log('LLM设置:', values);
+                // 这里应该是保存设置的逻辑
+                onCancel();
+            })
+            .catch(error => {
+                console.error('验证失败:', error);
             });
-            
-            if (result.data.connected) {
-                message.success(`${provider} 连接测试成功`);
-            } else {
-                message.error(`${provider} 连接测试失败: ${result.data.message}`);
-            }
-        } catch (error) {
-            console.error('连接测试失败:', error);
-            message.error('连接测试失败: ' + error.message);
-        }
     };
 
     // 处理向量提供商变更
@@ -283,9 +276,6 @@ function LLMSettingsModal({ visible, onCancel }) {
             onCancel={onCancel}
             width={700}
             footer={[
-                <Button key="test" icon={<LinkOutlined />} onClick={() => testConnection(activeTab)}>
-                    测试连接
-                </Button>,
                 <Button key="reset" onClick={resetToDefault}>
                     恢复默认
                 </Button>,

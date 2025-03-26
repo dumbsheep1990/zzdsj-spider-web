@@ -603,7 +603,7 @@ function Dashboard() {
                 <Row gutter={[16, 16]} className="status-card-row">
                     <Col xs={24} sm={12} md={6}>
                         <Card className="status-card">
-                        <Statistic
+                            <Statistic
                                 title={
                                     <span>
                                         爬虫状态

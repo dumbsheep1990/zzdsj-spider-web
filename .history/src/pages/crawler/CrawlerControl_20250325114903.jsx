@@ -517,13 +517,13 @@ function CrawlerControl() {
             } else {
                 // 否则使用普通启动API
                 await crawlerAPI.startCrawler(crawlerData);
-            notification.success({
-                message: '爬虫已启动',
+                notification.success({
+                    message: '爬虫已启动',
                     description: urls.length > 1 
                         ? `已成功启动爬虫任务，将处理${urls.length}个URL，请在仪表盘查看进度。` 
                         : '爬虫任务已成功启动，请在仪表盘查看进度。',
                     icon: <PlayCircleOutlined style={{ color: '#52c41a' }} />
-            });
+                });
             }
             
             fetchStatus();
@@ -671,15 +671,15 @@ function CrawlerControl() {
                     tab={<span><SettingOutlined /> 爬虫配置</span>} 
                     key="basic"
                 >
-                <Form
-                    form={form}
-                    name="crawler_form"
-                    initialValues={{
-                        base_url: 'https://www.gzlps.gov.cn/',
-                        include_subdomains: true,
-                        crawl_interval: 1.0,
-                        use_llm: false,
-                        provider: settings.llmSettings.activeProvider,
+                    <Form
+                        form={form}
+                        name="crawler_form"
+                        initialValues={{
+                            base_url: 'https://www.gzlps.gov.cn/',
+                            include_subdomains: true,
+                            crawl_interval: 1.0,
+                            use_llm: false,
+                            provider: settings.llmSettings.activeProvider,
                             model: settings.llmSettings[settings.llmSettings.activeProvider]?.model,
                             save_format: 'json',
                             advanced: {
@@ -688,10 +688,10 @@ function CrawlerControl() {
                                 concurrency: 1,
                                 user_agent: 'Crawl4AI Spider'
                             }
-                    }}
-                    onFinish={onStartCrawler}
-                    layout="vertical"
-                >
+                        }}
+                        onFinish={onStartCrawler}
+                        layout="vertical"
+                    >
                         {/* 基础URL配置 */}
                         <StyledCard 
                             title={<><LinkOutlined /> 基础URL配置</>} 
@@ -700,10 +700,10 @@ function CrawlerControl() {
                         >
                             <Row gutter={16}>
                                 <Col span={16}>
-                    <Form.Item
-                        name="base_url"
-                        label="主站URL"
-                        rules={[{ required: true, message: '请输入主站URL' }]}
+                                    <Form.Item
+                                        name="base_url"
+                                        label="主站URL"
+                                        rules={[{ required: true, message: '请输入主站URL' }]}
                                         tooltip="支持输入多个URL，一行一个URL地址"
                                     >
                                         <Input 
@@ -719,7 +719,7 @@ function CrawlerControl() {
                                             }
                                             prefix={<GlobalOutlined />}
                                         />
-                    </Form.Item>
+                                    </Form.Item>
                                 </Col>
                                 <Col span={8}>
                                     <Form.Item
@@ -751,7 +751,7 @@ function CrawlerControl() {
                                 <div style={{ marginBottom: 16 }}>
                                     <Text>请输入要爬取的URL地址，每行一个URL：</Text>
                                 </div>
-                    <Form.Item
+                                <Form.Item
                                     name="base_url"
                                     noStyle
                                 >
@@ -760,7 +760,7 @@ function CrawlerControl() {
                                         placeholder="https://www.example1.com/&#10;https://www.example2.com/&#10;https://www.example3.com/" 
                                         style={{ width: '100%', marginBottom: '16px' }}
                                     />
-                    </Form.Item>
+                                </Form.Item>
                                 <div style={{ marginTop: 8 }}>
                                     <Text type="secondary">
                                         提示：可以从文本文件或电子表格复制多个URL，粘贴到此处。确保每个URL单独一行。
@@ -825,50 +825,50 @@ function CrawlerControl() {
                             
                             <Row gutter={16}>
                                 <Col span={12}>
-                    <Form.Item
-                        name="max_pages"
-                        label="最大页面数量 (可选)"
-                    >
+                                    <Form.Item
+                                        name="max_pages"
+                                        label="最大页面数量 (可选)"
+                                    >
                                         <InputNumber
                                             min={1}
                                             max={10000}
                                             placeholder="不限制请留空"
                                             style={{ width: '100%', height: '38px' }}
                                         />
-                    </Form.Item>
+                                    </Form.Item>
                                 </Col>
                                 <Col span={12}>
-                    <Form.Item
-                        name="max_depth"
-                        label="最大爬取深度 (可选)"
-                    >
+                                    <Form.Item
+                                        name="max_depth"
+                                        label="最大爬取深度 (可选)"
+                                    >
                                         <InputNumber
                                             min={1}
                                             max={100}
                                             placeholder="不限制请留空"
                                             style={{ width: '100%', height: '38px' }}
                                         />
-                    </Form.Item>
+                                    </Form.Item>
                                 </Col>
                             </Row>
-
-                    <Form.Item
+                            
+                            <Form.Item
                                 name="save_format"
-                        label={
-                            <span>
+                                label={
+                                    <span>
                                         保存格式
                                         <Tooltip title="选择爬取数据的保存格式">
-                                    <QuestionCircleOutlined style={{ marginLeft: 4 }} />
-                                </Tooltip>
-                            </span>
-                        }
+                                            <QuestionCircleOutlined style={{ marginLeft: 4 }} />
+                                        </Tooltip>
+                                    </span>
+                                }
                             >
                                 <Select
                                     options={formatOptions}
                                     style={{ width: '100%' }}
                                     size="large"
                                 />
-                    </Form.Item>
+                            </Form.Item>
                         </StyledCard>
                         
                         {/* 爬虫功能 */}
@@ -963,55 +963,55 @@ function CrawlerControl() {
                                         <Switch checked={true} />
                                     </Form.Item>
                                     
-                            <Form.Item
-                                name="provider"
-                                label="LLM 提供商"
-                                rules={[{ required: useLLM, message: '请选择 LLM 提供商' }]}
-                            >
-                                <Select
-                                    placeholder="选择 LLM 提供商"
-                                    options={providerOptions}
-                                    onChange={handleProviderChange}
-                                />
-                            </Form.Item>
+                                    <Form.Item
+                                        name="provider"
+                                        label="LLM 提供商"
+                                        rules={[{ required: useLLM, message: '请选择 LLM 提供商' }]}
+                                    >
+                                        <Select
+                                            placeholder="选择 LLM 提供商"
+                                            options={providerOptions}
+                                            onChange={handleProviderChange}
+                                        />
+                                    </Form.Item>
 
-                            {getCurrentProvider() !== 'custom' && (
-                                <Form.Item
-                                    name="model"
-                                    label="LLM 模型"
-                                    rules={[{ required: useLLM, message: '请选择 LLM 模型' }]}
-                                >
-                                    <Select
-                                        placeholder="选择 LLM 模型"
-                                        options={getModelOptions(getCurrentProvider())}
-                                    />
-                                </Form.Item>
-                            )}
+                                    {getCurrentProvider() !== 'custom' && (
+                                        <Form.Item
+                                            name="model"
+                                            label="LLM 模型"
+                                            rules={[{ required: useLLM, message: '请选择 LLM 模型' }]}
+                                        >
+                                            <Select
+                                                placeholder="选择 LLM 模型"
+                                                options={getModelOptions(getCurrentProvider())}
+                                            />
+                                        </Form.Item>
+                                    )}
 
-                            {getCurrentProvider() === 'custom' && (
-                                <>
-                                    <Form.Item
-                                        name={['custom', 'model']}
-                                        label="自定义模型名称"
-                                        rules={[{ required: true, message: '请输入模型名称' }]}
-                                    >
-                                        <Input placeholder="例如：gpt-3.5-turbo, llama-7b" />
-                                    </Form.Item>
-                                    <Form.Item
-                                        name={['custom', 'apiUrl']}
-                                        label="API 接口地址"
-                                        rules={[{ required: true, message: '请输入API接口地址' }]}
-                                    >
-                                        <Input placeholder="例如：https://your-api-server.com/v1/chat/completions" />
-                                    </Form.Item>
-                                    <Form.Item
-                                        name={['custom', 'apiKey']}
-                                        label="API 密钥"
-                                    >
-                                        <Input.Password placeholder="如果需要，请输入API密钥" />
-                                    </Form.Item>
-                                </>
-                            )}
+                                    {getCurrentProvider() === 'custom' && (
+                                        <>
+                                            <Form.Item
+                                                name={['custom', 'model']}
+                                                label="自定义模型名称"
+                                                rules={[{ required: true, message: '请输入模型名称' }]}
+                                            >
+                                                <Input placeholder="例如：gpt-3.5-turbo, llama-7b" />
+                                            </Form.Item>
+                                            <Form.Item
+                                                name={['custom', 'apiUrl']}
+                                                label="API 接口地址"
+                                                rules={[{ required: true, message: '请输入API接口地址' }]}
+                                            >
+                                                <Input placeholder="例如：https://your-api-server.com/v1/chat/completions" />
+                                            </Form.Item>
+                                            <Form.Item
+                                                name={['custom', 'apiKey']}
+                                                label="API 密钥"
+                                            >
+                                                <Input.Password placeholder="如果需要，请输入API密钥" />
+                                            </Form.Item>
+                                        </>
+                                    )}
                                     
                                     <Divider orientation="left">LLM参数设置</Divider>
                                     
@@ -1046,8 +1046,8 @@ function CrawlerControl() {
                                     >
                                         <Input.TextArea rows={3} placeholder="输入提取提示词模板..." />
                                     </Form.Item>
-                        </>
-                    )}
+                                </>
+                            )}
                         </StyledCard>
                         
                         {/* 数据清洗配置 */}
@@ -1070,7 +1070,7 @@ function CrawlerControl() {
                                     action={
                                         <Button size="small" type="primary" onClick={() => setUseDataCleaning(true)}>
                                             启用
-                            </Button>
+                                        </Button>
                                     }
                                 />
                             ) : (
@@ -1162,8 +1162,8 @@ function CrawlerControl() {
                                         status.status === 'error' ? '出错' : '未开始'
                                     }
                                 />
-                            <Button
-                                icon={<ReloadOutlined />}
+                                <Button 
+                                    icon={<ReloadOutlined />} 
                                     size="small" 
                                     onClick={() => {
                                         fetchStatus();
@@ -1171,8 +1171,8 @@ function CrawlerControl() {
                                     }}
                                 >
                                     刷新
-                            </Button>
-                        </Space>
+                                </Button>
+                            </Space>
                         }
                     >
                         <Spin spinning={loading}>
@@ -1202,7 +1202,7 @@ function CrawlerControl() {
                                                         showInfo={false} 
                                                     />
                                                 </div>
-            </Card>
+                                            </Card>
                                         </Col>
                                         <Col xs={24} sm={12} md={8} lg={6}>
                                             <Card bordered={false} className="stat-card">
@@ -1252,7 +1252,7 @@ function CrawlerControl() {
                                         
                                         <Col xs={24} sm={12} md={8} lg={6}>
                                             <Card bordered={false} className="stat-card">
-                        <Statistic
+                                                <Statistic 
                                                     title="运行时间" 
                                                     value={formatTime(detailedStatus.elapsed_time)} 
                                                     prefix={<ClockCircleOutlined />}
@@ -1262,7 +1262,7 @@ function CrawlerControl() {
                                                     <Text type="secondary">
                                                         开始于: {detailedStatus.start_time ? detailedStatus.start_time.toLocaleTimeString() : '--:--:--'}
                                                     </Text>
-                    </div>
+                                                </div>
                                             </Card>
                                         </Col>
                                         <Col xs={24} sm={12} md={8} lg={6}>
@@ -1324,7 +1324,7 @@ function CrawlerControl() {
                                         </Col>
                                     </Row>
                                     
-                    {status.current_url && (
+                                    {status.current_url && (
                                         <Alert
                                             style={{ marginTop: 16 }}
                                             message="当前爬取进度"
@@ -1332,14 +1332,14 @@ function CrawlerControl() {
                                                 <div>
                                                     <Text strong>正在爬取: </Text>
                                                     <Text style={{ wordBreak: 'break-all' }}>{status.current_url}</Text>
-                        </div>
+                                                </div>
                                             }
                                             type="info"
                                             showIcon
                                         />
-                    )}
+                                    )}
                                     
-                    {status.error && (
+                                    {status.error && (
                                         <Alert
                                             style={{ marginTop: 16 }}
                                             message="爬虫出错"
@@ -1485,52 +1485,52 @@ function CrawlerControl() {
                                     >
                                         停止爬虫
                                     </Button>
-                        </div>
-                    )}
-                </Spin>
+                                </div>
+                            )}
+                        </Spin>
                     </StyledCard>
-
+                    
                     <StyledCard 
                         title="爬虫说明" 
                         style={{ marginTop: 16 }}
                     >
-                <Collapse>
+                        <Collapse>
                             <Panel header="爬虫功能说明" key="1">
-                        <Paragraph>
+                                <Paragraph>
                                     本爬虫系统支持多种高级爬取功能：
-                        </Paragraph>
-                        <ul>
+                                </Paragraph>
+                                <ul>
                                     <li><Text strong>包含子站点</Text> - 爬取主域名下的所有子站点</li>
                                     <li><Text strong>跟随外部链接</Text> - 跟随并爬取指向外部网站的链接</li>
                                     <li><Text strong>处理Javascript</Text> - 使用浏览器引擎执行JS后爬取页面内容</li>
                                     <li><Text strong>爬取分页</Text> - 智能识别并依次爬取分页内容</li>
                                     <li><Text strong>处理登录</Text> - 支持通过表单登录后爬取需要身份验证的内容</li>
                                     <li><Text strong>批量URL导入</Text> - 支持通过Excel或CSV文件批量导入多个URL</li>
-                        </ul>
-                    </Panel>
+                                </ul>
+                            </Panel>
                             <Panel header="LLM内容提取" key="2">
-                        <Paragraph>
+                                <Paragraph>
                                     启用LLM内容提取功能可以：
-                        </Paragraph>
+                                </Paragraph>
                                 <ul>
                                     <li>精确识别文章正文，分离导航、广告等无关内容</li>
                                     <li>提取并结构化表格数据</li>
                                     <li>识别文章标题、摘要、关键信息</li>
                                     <li>内容分类和标签生成</li>
                                 </ul>
-                    </Panel>
+                            </Panel>
                             <Panel header="数据清洗集成" key="3">
-                        <Paragraph>
+                                <Paragraph>
                                     在爬取过程中启用数据清洗可以：
-                        </Paragraph>
+                                </Paragraph>
                                 <ul>
                                     <li>移除HTML标签和无关内容</li>
                                     <li>标准化文本格式和结构</li>
                                     <li>去除重复和低质量内容</li>
                                     <li>提高数据的整体质量和可用性</li>
                                 </ul>
-                    </Panel>
-                </Collapse>
+                            </Panel>
+                        </Collapse>
                     </StyledCard>
                 </TabPane>
             </Tabs>

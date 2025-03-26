@@ -55,8 +55,10 @@ const { Dragger } = Upload;
 
 function Vectorization() {
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('config');
     const [config, setConfig] = useState(null);
+    const [stats, setStats] = useState(null);
     const [models, setModels] = useState([]);
     const [templates, setTemplates] = useState([]);
     const [history, setHistory] = useState([]);
@@ -76,6 +78,16 @@ function Vectorization() {
             form.setFieldsValue(response.data);
         } catch (error) {
             console.error('获取配置失败:', error);
+        }
+    };
+
+    // 获取统计信息
+    const fetchStats = async () => {
+        try {
+            const response = await vectorAPI.getStats();
+            setStats(response.data);
+        } catch (error) {
+            console.error('获取统计信息失败:', error);
         }
     };
 
@@ -111,6 +123,7 @@ function Vectorization() {
 
     useEffect(() => {
         fetchConfig();
+        fetchStats();
         fetchModels();
         fetchTemplates();
         fetchHistory();
@@ -138,7 +151,7 @@ function Vectorization() {
     const handleTestConnection = async () => {
         try {
             const values = await form.validateFields();
-            await vectorAPI.testConnection(values);
+            const response = await vectorAPI.testConnection(values);
             notification.success({
                 message: '连接成功',
                 description: '向量化服务连接测试通过。',
@@ -172,6 +185,7 @@ function Vectorization() {
                         message: '重建完成',
                         description: '向量索引重建完成。',
                     });
+                    fetchStats();
                 } else if (progress.status === 'failed') {
                     clearInterval(pollProgress);
                     setRebuildProgress({ ...progress, status: 'failed' });
@@ -218,6 +232,7 @@ function Vectorization() {
                         message: '批量向量化完成',
                         description: '所有内容已成功向量化。',
                     });
+                    fetchStats();
                 } else if (progress.status === 'failed') {
                     clearInterval(pollProgress);
                     setBatchProgress({ ...progress, status: 'failed' });
@@ -313,24 +328,6 @@ function Vectorization() {
             notification.error({
                 message: '导出失败',
                 description: error.response?.data?.detail || '导出失败，请重试。',
-            });
-        }
-    };
-
-    // 删除记录
-    const handleDeleteRecord = async (recordId) => {
-        try {
-            await vectorAPI.deleteRecord(recordId);
-            notification.success({
-                message: '删除成功',
-                description: '向量化记录已删除。',
-            });
-            fetchHistory();
-        } catch (error) {
-            console.error('删除记录失败:', error);
-            notification.error({
-                message: '删除失败',
-                description: error.response?.data?.detail || '删除记录失败，请重试。',
             });
         }
     };
@@ -738,6 +735,33 @@ function Vectorization() {
                 </Col>
 
                 <Col span={8}>
+                    <Card title="统计信息">
+                        <Space direction="vertical" style={{ width: '100%' }}>
+                            <Statistic
+                                title="总向量数"
+                                value={stats?.total_vectors || 0}
+                                prefix={<DatabaseOutlined />}
+                            />
+                            <Statistic
+                                title="今日向量化"
+                                value={stats?.today_vectors || 0}
+                                prefix={<PlusOutlined />}
+                            />
+                            <Statistic
+                                title="索引大小"
+                                value={stats?.index_size || 0}
+                                suffix="MB"
+                                prefix={<BarChartOutlined />}
+                            />
+                            <Statistic
+                                title="平均响应时间"
+                                value={stats?.avg_response_time || 0}
+                                suffix="ms"
+                                prefix={<ApiOutlined />}
+                            />
+                        </Space>
+                    </Card>
+
                     <Card title="向量化模板" style={{ marginTop: 16 }}>
                         <List
                             dataSource={templates}

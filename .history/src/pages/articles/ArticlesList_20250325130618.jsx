@@ -23,8 +23,7 @@ import {
     Avatar,
     Tabs,
     Statistic,
-    Checkbox,
-    Empty
+    Checkbox
 } from 'antd';
 import { 
     SearchOutlined, 
@@ -48,8 +47,7 @@ import {
     ImportOutlined,
     ExportOutlined
 } from '@ant-design/icons';
-// mock API 数据，实际项目中替换为真实API调用
-// import { articleAPI } from '../../api';
+import { articleAPI } from '../../api';
 import styled from 'styled-components';
 
 const { Title, Paragraph, Text } = Typography;
@@ -262,6 +260,7 @@ function ArticlesList() {
     });
     const [viewMode, setViewMode] = useState('list'); // list or table
     const [selectedArticles, setSelectedArticles] = useState([]);
+    const [batchActionVisible, setBatchActionVisible] = useState(false);
     const [sortField, setSortField] = useState('crawled_at');
     const [sortOrder, setSortOrder] = useState('descend');
     const [statistics, setStatistics] = useState({
@@ -281,7 +280,7 @@ function ArticlesList() {
     const fetchArticles = async () => {
         try {
             setLoading(true);
-
+            
             // 模拟API调用延迟
             await new Promise(resolve => setTimeout(resolve, 500));
             
@@ -351,7 +350,7 @@ function ArticlesList() {
         setFilters({ ...filters, ...newFilters });
         setPage(1); // 重置分页
     };
-
+    
     const handleBatchAction = (action) => {
         if (selectedArticles.length === 0) {
             message.warning('请先选择文章');
@@ -517,139 +516,6 @@ function ArticlesList() {
         }
     ];
     
-    // 渲染列表视图
-    const renderListView = () => (
-        <List
-            dataSource={articles}
-            renderItem={article => (
-                <List.Item
-                    className={`article-list-item ${article.is_featured ? 'featured-article' : ''}`}
-                    onClick={() => navigate(`/article/${article._id}`)}
-                    actions={[
-                        <Space>
-                            <Tooltip title="查看详情">
-                                <Button
-                                    type="text"
-                                    icon={<EyeOutlined />}
-                                    className="article-action-btn"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        navigate(`/article/${article._id}`);
-                                    }}
-                                />
-                            </Tooltip>
-                            <Tooltip title={article.is_featured ? '取消重点' : '设为重点'}>
-                                <Button
-                                    type="text"
-                                    icon={article.is_featured ? <StarFilled style={{ color: '#faad14' }} /> : <StarOutlined />}
-                                    className="article-action-btn"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleFeatured(article._id, article.is_featured);
-                                    }}
-                                />
-                            </Tooltip>
-                            <Dropdown
-                                overlay={
-                                    <Menu>
-                                        <Menu.Item key="edit" icon={<EditOutlined />}>
-                                            编辑文章
-                                        </Menu.Item>
-                                        <Menu.Item key="download" icon={<DownloadOutlined />}>
-                                            下载文章
-                                        </Menu.Item>
-                                        <Menu.Item key="delete" icon={<DeleteOutlined />} danger>
-                                            删除文章
-                                        </Menu.Item>
-                                    </Menu>
-                                }
-                                trigger={['click']}
-                            >
-                                <Button
-                                    type="text"
-                                    icon={<EllipsisOutlined />}
-                                    className="article-action-btn"
-                                    onClick={(e) => e.stopPropagation()}
-                                />
-                            </Dropdown>
-                        </Space>
-                    ]}
-                >
-                    <List.Item.Meta
-                        avatar={
-                            <Avatar 
-                                icon={<FileTextOutlined />} 
-                                style={{ 
-                                    backgroundColor: article.is_featured ? '#52c41a' : '#1890ff',
-                                    marginTop: 4 
-                                }}
-                            />
-                        }
-                        title={
-                            <div>
-                                <span className="article-item-title">
-                                    {article.title}
-                                </span>
-                                {article.is_featured && (
-                                    <Tag color="success" style={{ marginLeft: 8 }}>重点</Tag>
-                                )}
-                            </div>
-                        }
-                        description={
-                            <div>
-                                <div className="article-meta">
-                                    <Space split={<Divider type="vertical" />}>
-                                        <span className="icon-text">
-                                            <FolderOutlined /> {article.category}
-                                        </span>
-                                        <span className="icon-text">
-                                            <CalendarOutlined /> {article.publish_date}
-                                        </span>
-                                        <span>{article.domain}</span>
-                                        <span>{article.author}</span>
-                                    </Space>
-                                </div>
-                                <div className="article-content-preview">
-                                    {article.content_summary}
-                                </div>
-                                <div style={{ marginTop: 12 }}>
-                                    {article.tags.map(tag => (
-                                        <Tag key={tag} className="article-tag">{tag}</Tag>
-                                    ))}
-                                </div>
-                                <div className="article-stats" style={{ marginTop: 12 }}>
-                                    <span className="icon-text">
-                                        <EyeOutlined /> {article.view_count} 次查看
-                                    </span>
-                                    <span className="icon-text">
-                                        <FileTextOutlined /> {article.word_count} 字
-                                    </span>
-                                    {article.has_attachments && (
-                                        <Tag color="blue">附件</Tag>
-                                    )}
-                                    {article.is_llm_extracted && (
-                                        <Tag color="purple">LLM提取</Tag>
-                                    )}
-                                </div>
-                            </div>
-                        }
-                    />
-                </List.Item>
-            )}
-            pagination={{
-                current: page,
-                pageSize: pageSize,
-                total: total,
-                onChange: (p, ps) => {
-                    setPage(p);
-                    setPageSize(ps);
-                },
-                showSizeChanger: true,
-                showTotal: (total) => `共 ${total} 篇文章`
-            }}
-        />
-    );
-    
     // 渲染表格视图
     const renderTableView = () => (
         <Table
@@ -732,9 +598,9 @@ function ArticlesList() {
                 <Row justify="space-between" align="middle">
                     <Col>
                         <Title level={4}>文章管理中心</Title>
-            <Paragraph>
+                        <Paragraph>
                             查看、分析和管理已爬取的文章内容，支持高级筛选、批量操作和数据统计。
-            </Paragraph>
+                        </Paragraph>
                     </Col>
                     <Col>
                         <Space>
@@ -779,22 +645,22 @@ function ArticlesList() {
                         <div className="filter-section">
                             <Row gutter={[16, 16]}>
                                 <Col span={8}>
-                        <Input.Search
+                                    <Input.Search
                                         placeholder="搜索文章标题或内容"
-                            allowClear
-                            onSearch={(value) => onFilterChange({ keyword: value })}
-                        />
+                                        allowClear
+                                        onSearch={(value) => onFilterChange({ keyword: value })}
+                                    />
                                 </Col>
                                 <Col span={8}>
-                        <Select
-                            placeholder="选择站点"
-                            allowClear
+                                    <Select
+                                        placeholder="选择站点"
+                                        allowClear
                                         style={{ width: '100%' }}
-                            onChange={(value) => onFilterChange({ domain: value })}
-                        >
-                            <Option value="www.gzlps.gov.cn">www.gzlps.gov.cn</Option>
-                            <Option value="jyj.gzlps.gov.cn">jyj.gzlps.gov.cn</Option>
-                            <Option value="zjj.gzlps.gov.cn">zjj.gzlps.gov.cn</Option>
+                                        onChange={(value) => onFilterChange({ domain: value })}
+                                    >
+                                        <Option value="www.gzlps.gov.cn">www.gzlps.gov.cn</Option>
+                                        <Option value="jyj.gzlps.gov.cn">jyj.gzlps.gov.cn</Option>
+                                        <Option value="zjj.gzlps.gov.cn">zjj.gzlps.gov.cn</Option>
                                     </Select>
                                 </Col>
                                 <Col span={8}>
@@ -809,51 +675,51 @@ function ArticlesList() {
                                         <Option value="公告">公告</Option>
                                         <Option value="规划公示">规划公示</Option>
                                         <Option value="通知">通知</Option>
-                        </Select>
+                                    </Select>
                                 </Col>
                                 <Col span={8}>
-                        <RangePicker
+                                    <RangePicker
                                         style={{ width: '100%' }}
-                            onChange={(dates) => {
-                                if (dates) {
-                                    onFilterChange({
-                                        start_date: dates[0]?.format('YYYY-MM-DD'),
-                                        end_date: dates[1]?.format('YYYY-MM-DD')
-                                    });
-                                } else {
-                                    onFilterChange({ start_date: null, end_date: null });
-                                }
-                            }}
-                        />
+                                        onChange={(dates) => {
+                                            if (dates) {
+                                                onFilterChange({
+                                                    start_date: dates[0]?.format('YYYY-MM-DD'),
+                                                    end_date: dates[1]?.format('YYYY-MM-DD')
+                                                });
+                                            } else {
+                                                onFilterChange({ start_date: null, end_date: null });
+                                            }
+                                        }}
+                                    />
                                 </Col>
                                 <Col span={16}>
                                     <Space>
-                        <Button
-                            type="primary"
-                            icon={<SearchOutlined />}
-                            onClick={fetchArticles}
-                        >
-                            搜索
-                        </Button>
-                        <Button
-                            icon={<ReloadOutlined />}
-                            onClick={() => {
-                                setFilters({
-                                    domain: null,
-                                    start_date: null,
-                                    end_date: null,
+                                        <Button
+                                            type="primary"
+                                            icon={<SearchOutlined />}
+                                            onClick={fetchArticles}
+                                        >
+                                            搜索
+                                        </Button>
+                                        <Button
+                                            icon={<ReloadOutlined />}
+                                            onClick={() => {
+                                                setFilters({
+                                                    domain: null,
+                                                    start_date: null,
+                                                    end_date: null,
                                                     keyword: null,
                                                     category: null,
                                                     tags: [],
                                                     is_featured: null,
                                                     has_attachments: null
-                                });
-                                setPage(1);
-                                fetchArticles();
-                            }}
-                        >
-                            重置筛选
-                        </Button>
+                                                });
+                                                setPage(1);
+                                                fetchArticles();
+                                            }}
+                                        >
+                                            重置筛选
+                                        </Button>
                                         <Dropdown
                                             overlay={
                                                 <Menu>
@@ -914,11 +780,11 @@ function ArticlesList() {
                                                 高级筛选
                                             </Button>
                                         </Dropdown>
-                    </Space>
+                                    </Space>
                                 </Col>
                             </Row>
-                </div>
-
+                        </div>
+                        
                         {viewMode === 'list' ? renderListView() : renderTableView()}
                     </TabPane>
                     <TabPane 

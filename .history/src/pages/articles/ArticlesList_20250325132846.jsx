@@ -281,7 +281,7 @@ function ArticlesList() {
     const fetchArticles = async () => {
         try {
             setLoading(true);
-
+            
             // 模拟API调用延迟
             await new Promise(resolve => setTimeout(resolve, 500));
             
@@ -351,7 +351,7 @@ function ArticlesList() {
         setFilters({ ...filters, ...newFilters });
         setPage(1); // 重置分页
     };
-
+    
     const handleBatchAction = (action) => {
         if (selectedArticles.length === 0) {
             message.warning('请先选择文章');
@@ -732,9 +732,9 @@ function ArticlesList() {
                 <Row justify="space-between" align="middle">
                     <Col>
                         <Title level={4}>文章管理中心</Title>
-            <Paragraph>
+                        <Paragraph>
                             查看、分析和管理已爬取的文章内容，支持高级筛选、批量操作和数据统计。
-            </Paragraph>
+                        </Paragraph>
                     </Col>
                     <Col>
                         <Space>
@@ -779,22 +779,22 @@ function ArticlesList() {
                         <div className="filter-section">
                             <Row gutter={[16, 16]}>
                                 <Col span={8}>
-                        <Input.Search
+                                    <Input.Search
                                         placeholder="搜索文章标题或内容"
-                            allowClear
-                            onSearch={(value) => onFilterChange({ keyword: value })}
-                        />
+                                        allowClear
+                                        onSearch={(value) => onFilterChange({ keyword: value })}
+                                    />
                                 </Col>
                                 <Col span={8}>
-                        <Select
-                            placeholder="选择站点"
-                            allowClear
+                                    <Select
+                                        placeholder="选择站点"
+                                        allowClear
                                         style={{ width: '100%' }}
-                            onChange={(value) => onFilterChange({ domain: value })}
-                        >
-                            <Option value="www.gzlps.gov.cn">www.gzlps.gov.cn</Option>
-                            <Option value="jyj.gzlps.gov.cn">jyj.gzlps.gov.cn</Option>
-                            <Option value="zjj.gzlps.gov.cn">zjj.gzlps.gov.cn</Option>
+                                        onChange={(value) => onFilterChange({ domain: value })}
+                                    >
+                                        <Option value="www.gzlps.gov.cn">www.gzlps.gov.cn</Option>
+                                        <Option value="jyj.gzlps.gov.cn">jyj.gzlps.gov.cn</Option>
+                                        <Option value="zjj.gzlps.gov.cn">zjj.gzlps.gov.cn</Option>
                                     </Select>
                                 </Col>
                                 <Col span={8}>
@@ -809,51 +809,51 @@ function ArticlesList() {
                                         <Option value="公告">公告</Option>
                                         <Option value="规划公示">规划公示</Option>
                                         <Option value="通知">通知</Option>
-                        </Select>
+                                    </Select>
                                 </Col>
                                 <Col span={8}>
-                        <RangePicker
+                                    <RangePicker
                                         style={{ width: '100%' }}
-                            onChange={(dates) => {
-                                if (dates) {
-                                    onFilterChange({
-                                        start_date: dates[0]?.format('YYYY-MM-DD'),
-                                        end_date: dates[1]?.format('YYYY-MM-DD')
-                                    });
-                                } else {
-                                    onFilterChange({ start_date: null, end_date: null });
-                                }
-                            }}
-                        />
+                                        onChange={(dates) => {
+                                            if (dates) {
+                                                onFilterChange({
+                                                    start_date: dates[0]?.format('YYYY-MM-DD'),
+                                                    end_date: dates[1]?.format('YYYY-MM-DD')
+                                                });
+                                            } else {
+                                                onFilterChange({ start_date: null, end_date: null });
+                                            }
+                                        }}
+                                    />
                                 </Col>
                                 <Col span={16}>
                                     <Space>
-                        <Button
-                            type="primary"
-                            icon={<SearchOutlined />}
-                            onClick={fetchArticles}
-                        >
-                            搜索
-                        </Button>
-                        <Button
-                            icon={<ReloadOutlined />}
-                            onClick={() => {
-                                setFilters({
-                                    domain: null,
-                                    start_date: null,
-                                    end_date: null,
+                                        <Button
+                                            type="primary"
+                                            icon={<SearchOutlined />}
+                                            onClick={fetchArticles}
+                                        >
+                                            搜索
+                                        </Button>
+                                        <Button
+                                            icon={<ReloadOutlined />}
+                                            onClick={() => {
+                                                setFilters({
+                                                    domain: null,
+                                                    start_date: null,
+                                                    end_date: null,
                                                     keyword: null,
                                                     category: null,
                                                     tags: [],
                                                     is_featured: null,
                                                     has_attachments: null
-                                });
-                                setPage(1);
-                                fetchArticles();
-                            }}
-                        >
-                            重置筛选
-                        </Button>
+                                                });
+                                                setPage(1);
+                                                fetchArticles();
+                                            }}
+                                        >
+                                            重置筛选
+                                        </Button>
                                         <Dropdown
                                             overlay={
                                                 <Menu>
@@ -914,11 +914,11 @@ function ArticlesList() {
                                                 高级筛选
                                             </Button>
                                         </Dropdown>
-                    </Space>
+                                    </Space>
                                 </Col>
                             </Row>
-                </div>
-
+                        </div>
+                        
                         {viewMode === 'list' ? renderListView() : renderTableView()}
                     </TabPane>
                     <TabPane 

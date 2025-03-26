@@ -402,7 +402,7 @@ function Dashboard() {
             
             const subdomainsRes = await crawlerAPI.getSubdomains();
             setSubdomains(subdomainsRes.data);
-
+            
             // 更新内容类型分布和响应状态码分布
             setChartData(prev => ({
                 ...prev,
@@ -573,9 +573,9 @@ function Dashboard() {
             <div className="dashboard-header">
                 <div>
                     <Title level={4}><DashboardOutlined /> 系统仪表盘</Title>
-                <Paragraph>
+                    <Paragraph>
                         智能爬虫系统数据分析与监控中心，提供实时状态、性能监控和数据统计。
-                </Paragraph>
+                    </Paragraph>
                 </div>
                 <Space>
                     {dataInitialized && 
@@ -603,7 +603,7 @@ function Dashboard() {
                 <Row gutter={[16, 16]} className="status-card-row">
                     <Col xs={24} sm={12} md={6}>
                         <Card className="status-card">
-                        <Statistic
+                            <Statistic
                                 title={
                                     <span>
                                         爬虫状态
@@ -615,20 +615,20 @@ function Dashboard() {
                                 }
                                 value={
                                     status.status === 'running' ? '运行中' :
-                                status.status === 'completed' ? '已完成' :
+                                    status.status === 'completed' ? '已完成' :
                                     status.status === 'stopped' ? '已停止' :
                                     status.status === 'error' ? '出错' : '未开始'
                                 }
                                 valueStyle={{ 
                                     color: status.status === 'running' ? '#1890ff' :
-                                    status.status === 'completed' ? '#52c41a' :
+                                           status.status === 'completed' ? '#52c41a' :
                                            status.status === 'error' ? '#f5222d' : '#000000' 
                                 }}
                                 prefix={<DashboardOutlined />}
-                        />
+                            />
                             <div className="status-detail">
                                 <Text type="secondary">运行时间: {getRunningTime()}</Text>
-                    </div>
+                            </div>
                         </Card>
                     </Col>
                     <Col xs={24} sm={12} md={6}>
@@ -646,7 +646,7 @@ function Dashboard() {
                                     status="active" 
                                     showInfo={false} 
                                 />
-                        </div>
+                            </div>
                         </Card>
                     </Col>
                     <Col xs={24} sm={12} md={6}>
@@ -661,8 +661,8 @@ function Dashboard() {
                                 <Text type="secondary">
                                     约占URL的{Math.round((status.articles_found || 0) / (status.visited_urls || 1) * 100)}%
                                 </Text>
-                    </div>
-                </Card>
+                            </div>
+                        </Card>
                     </Col>
                     <Col xs={24} sm={12} md={6}>
                         <Card className="status-card">
@@ -676,8 +676,8 @@ function Dashboard() {
                                 <Text type="secondary">
                                     已爬取: {subdomains.filter(s => s.crawled).length} 个
                                 </Text>
-                        </div>
-                    </Card>
+                            </div>
+                        </Card>
                     </Col>
                 </Row>
                 
@@ -902,10 +902,10 @@ function Dashboard() {
                                 }
                             >
                                 {subdomains.length > 0 ? (
-                    <List
-                        size="small"
-                        dataSource={subdomains}
-                        renderItem={item => (
+                                    <List
+                                        size="small"
+                                        dataSource={subdomains}
+                                        renderItem={item => (
                                             <List.Item
                                                 actions={[
                                                     <Badge 
@@ -939,38 +939,32 @@ function Dashboard() {
                                     <Card 
                                         title={<span><PieChartOutlined /> 内容类型分布</span>} 
                                         className="dashboard-card"
-                                        bodyStyle={{ height: 380, overflowY: 'auto' }}
                                     >
-                                        <div className="chart-container" style={{ padding: '10px 0' }}>
-                                            {Object.entries(chartData.contentTypes).map(([type, count], index) => (
-                                                <div key={index} className="chart-bar-item" style={{ marginBottom: 24 }}>
-                                                    <div className="chart-label" style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                                                        {type === 'html' && <GlobalOutlined />}
-                                                        {type === 'pdf' && <FilePdfOutlined />}
-                                                        {type === 'doc' && <FileTextOutlined />}
-                                                        {type === 'xls' && <FileExcelOutlined />}
-                                                        {type === 'image' && <FileImageOutlined />}
-                                                        <span style={{ marginLeft: 8 }}>{type.toUpperCase()}</span>
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                        <div style={{ flex: 1 }}>
-                                                            <Progress
-                                                                percent={count}
-                                                                showInfo={false}
-                                                                status="normal"
-                                                                strokeColor={{
-                                                                    '0%': '#108ee9',
-                                                                    '100%': '#87d068',
-                                                                }}
-                                                                strokeWidth={12}
-                                                            />
+                                        <div className="chart-container">
+                                            <div className="mock-chart" style={{ height: 300 }}>
+                                                {Object.entries(chartData.contentTypes).map(([type, count], index) => (
+                                                    <div key={index} className="chart-bar-item">
+                                                        <div className="chart-label">
+                                                            {type === 'html' && <GlobalOutlined />}
+                                                            {type === 'pdf' && <FilePdfOutlined />}
+                                                            {type === 'doc' && <FileTextOutlined />}
+                                                            {type === 'xls' && <FileExcelOutlined />}
+                                                            {type === 'image' && <FileImageOutlined />}
+                                                            <span style={{ marginLeft: 8 }}>{type.toUpperCase()}</span>
                                                         </div>
-                                                        <span className="chart-value" style={{ marginLeft: 10, fontSize: 16, fontWeight: 'bold', minWidth: 42, textAlign: 'right' }}>
-                                                            {count}%
-                                                        </span>
+                                                        <Progress
+                                                            percent={count}
+                                                            showInfo={false}
+                                                            status="normal"
+                                                            strokeColor={{
+                                                                '0%': '#108ee9',
+                                                                '100%': '#87d068',
+                                                            }}
+                                                        />
+                                                        <span className="chart-value">{count}%</span>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                ))}
+                                            </div>
                                         </div>
                                     </Card>
                                 </Col>
@@ -978,45 +972,39 @@ function Dashboard() {
                                     <Card 
                                         title={<span><PieChartOutlined /> 响应状态分布</span>} 
                                         className="dashboard-card"
-                                        bodyStyle={{ height: 380, overflowY: 'auto' }}
                                     >
-                                        <div className="chart-container" style={{ padding: '10px 0' }}>
-                                            {Object.entries(chartData.responseStatus).map(([code, count], index) => (
-                                                <div key={index} className="chart-bar-item" style={{ marginBottom: 24 }}>
-                                                    <div className="chart-label" style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                                                        <Tag color={
-                                                            code.startsWith('2') ? 'green' :
-                                                            code.startsWith('3') ? 'blue' :
-                                                            code.startsWith('4') ? 'orange' :
-                                                            'red'
-                                                        }>
-                                                            {code}
-                                    </Tag>
-                                                        <span style={{ marginLeft: 8 }}>
-                                                            {code === '200' ? 'OK' :
-                                                            code === '301' ? '永久重定向' :
-                                                            code === '302' ? '临时重定向' :
-                                                            code === '404' ? '未找到' :
-                                                            code === '500' ? '服务器错误' : '未知'}
-                                                        </span>
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                        <div style={{ flex: 1 }}>
-                                                            <Progress
-                                                                percent={count}
-                                                                showInfo={false}
-                                                                status={code.startsWith('2') ? 'success' :
-                                                                        code.startsWith('4') || code.startsWith('5') ? 'exception' :
-                                                                        'normal'}
-                                                                strokeWidth={12}
-                                                            />
+                                        <div className="chart-container">
+                                            <div className="mock-chart" style={{ height: 300 }}>
+                                                {Object.entries(chartData.responseStatus).map(([code, count], index) => (
+                                                    <div key={index} className="chart-bar-item">
+                                                        <div className="chart-label">
+                                                            <Tag color={
+                                                                code.startsWith('2') ? 'green' :
+                                                                code.startsWith('3') ? 'blue' :
+                                                                code.startsWith('4') ? 'orange' :
+                                                                'red'
+                                                            }>
+                                                                {code}
+                                                            </Tag>
+                                                            <span style={{ marginLeft: 8 }}>
+                                                                {code === '200' ? 'OK' :
+                                                                code === '301' ? '永久重定向' :
+                                                                code === '302' ? '临时重定向' :
+                                                                code === '404' ? '未找到' :
+                                                                code === '500' ? '服务器错误' : '未知'}
+                                                            </span>
                                                         </div>
-                                                        <span className="chart-value" style={{ marginLeft: 10, fontSize: 16, fontWeight: 'bold', minWidth: 42, textAlign: 'right' }}>
-                                                            {count}%
-                                                        </span>
+                                                        <Progress
+                                                            percent={count}
+                                                            showInfo={false}
+                                                            status={code.startsWith('2') ? 'success' :
+                                                                    code.startsWith('4') || code.startsWith('5') ? 'exception' :
+                                                                    'normal'}
+                                                        />
+                                                        <span className="chart-value">{count}%</span>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                ))}
+                                            </div>
                                         </div>
                                     </Card>
                                 </Col>
@@ -1124,15 +1112,15 @@ function Dashboard() {
                                                     '0%': '#52c41a',
                                                     '100%': '#87d068',
                                                 }}
-                    />
-                </Card>
+                                            />
+                                        </Card>
                                     </Col>
                                 </Row>
                             </Card>
                         </Spin>
                     </TabPane>
                 </Tabs>
-        </Spin>
+            </Spin>
         </DashboardContainer>
     );
 }

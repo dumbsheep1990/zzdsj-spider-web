@@ -11,7 +11,6 @@ import {
     SaveOutlined
 } from '@ant-design/icons';
 import { useGlobalSettings } from '../../context/GlobalSettingsContext';
-import { systemAPI, llmAPI, vectorAPI } from '../../api';
 
 const { Text, Title, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -20,39 +19,16 @@ function APIStatusModal({ visible, onCancel, setLLMSettingsModalVisible }) {
     const { settings, checkAPIStatus } = useGlobalSettings();
     const [checking, setChecking] = useState(false);
     const [activeTab, setActiveTab] = useState('local');
-    const [diagnostics, setDiagnostics] = useState(null);
 
-    // 检查API状态
-    const checkApiStatusManual = async () => {
+    // 模拟检查API状态
+    const checkApiStatusManual = () => {
         setChecking(true);
-        try {
-            // 获取系统状态
-            const systemStatus = await systemAPI.getStatus();
-            
-            // 获取LLM服务状态
-            await llmAPI.testConnection(settings.llmSettings);
-            
-            // 获取向量化服务状态
-            await vectorAPI.testConnection(settings.vectorSettings);
-            
-            // 更新状态
+
+        // 模拟API检查延迟
+        setTimeout(async () => {
             await checkAPIStatus();
-            
-            // 获取诊断信息
-            const resourceUsage = await systemAPI.getResourceUsage();
-            const logs = await systemAPI.getLogs({ limit: 5 });
-            
-            setDiagnostics({
-                lastCheck: new Date().toLocaleString(),
-                systemStatus: systemStatus.data,
-                resourceUsage: resourceUsage.data,
-                logs: logs.data
-            });
-        } catch (error) {
-            console.error('检查API状态失败:', error);
-        } finally {
             setChecking(false);
-        }
+        }, 1500);
     };
 
     // 当弹窗显示时自动检查状态
@@ -138,9 +114,20 @@ function APIStatusModal({ visible, onCancel, setLLMSettingsModalVisible }) {
 
     // 渲染诊断信息
     const renderDiagnostics = () => {
-        if (!diagnostics) {
-            return <Spin />;
-        }
+        // 模拟一些诊断数据
+        const diagnosticData = {
+            lastCheck: new Date().toLocaleString(),
+            responseTimes: {
+                deepseek: Math.floor(Math.random() * 300 + 100),
+                doubao: Math.floor(Math.random() * 300 + 100),
+                aliyun: Math.floor(Math.random() * 300 + 100),
+                zhipu: Math.floor(Math.random() * 300 + 100),
+                ollama: Math.floor(Math.random() * 100 + 20),
+                backend: Math.floor(Math.random() * 50 + 10)
+            },
+            networkStatus: Math.random() > 0.1 ? '正常' : '异常',
+            systemVersion: 'v1.0.0'
+        };
 
         return (
             <pre style={{
@@ -151,16 +138,11 @@ function APIStatusModal({ visible, onCancel, setLLMSettingsModalVisible }) {
                 overflow: 'auto',
                 fontSize: '12px'
             }}>
-                {`最后检查时间: ${diagnostics.lastCheck}
-系统状态: ${diagnostics.systemStatus.status}
-CPU使用率: ${diagnostics.resourceUsage.cpu}%
-内存使用率: ${diagnostics.resourceUsage.memory}%
-磁盘使用率: ${diagnostics.resourceUsage.disk}%
-网络状态: ${diagnostics.resourceUsage.network}
-系统版本: ${diagnostics.resourceUsage.version}
-最近日志:
-${diagnostics.logs.map(log => `[${log.timestamp}] ${log.message}`).join('\n')}`}
-            </pre>
+        {`最后检查时间: ${diagnosticData.lastCheck}
+响应时间: Deepseek(${diagnosticData.responseTimes.deepseek}ms), 豆包(${diagnosticData.responseTimes.doubao}ms), 阿里云(${diagnosticData.responseTimes.aliyun}ms), 智谱(${diagnosticData.responseTimes.zhipu}ms), Ollama(${diagnosticData.responseTimes.ollama}ms), Backend(${diagnosticData.responseTimes.backend}ms)
+网络状态: ${diagnosticData.networkStatus}
+系统版本: ${diagnosticData.systemVersion}`}
+      </pre>
         );
     };
 

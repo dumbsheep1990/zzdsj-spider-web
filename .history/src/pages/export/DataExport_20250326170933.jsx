@@ -36,8 +36,7 @@ import {
     SettingOutlined,
     QuestionCircleOutlined,
     SendOutlined,
-    FileTextOutlined,
-    FilterOutlined
+    FileTextOutlined
 } from '@ant-design/icons';
 import { exportAPI } from '../../api';
 import styled from 'styled-components';
@@ -48,7 +47,6 @@ const { TextArea } = Input;
 const { Panel } = Collapse;
 const { Dragger } = Upload;
 const { RangePicker } = DatePicker;
-const { Option } = Select;
 
 // 添加样式组件
 const ExportContainer = styled.div`
@@ -107,6 +105,16 @@ const HistoryItem = styled.div`
     }
 `;
 
+// 定义格式图标映射
+const formatIcons = {
+  json: <i className="fas fa-code" style={{ color: '#1890ff' }}></i>,
+  csv: <i className="fas fa-file-csv" style={{ color: '#52c41a' }}></i>,
+  excel: <i className="fas fa-file-excel" style={{ color: '#faad14' }}></i>,
+  markdown: <i className="fas fa-file-alt" style={{ color: '#722ed1' }}></i>,
+  html: <i className="fas fa-file-code" style={{ color: '#eb2f96' }}></i>,
+  txt: <i className="fas fa-file-alt" style={{ color: '#bfbfbf' }}></i>
+};
+
 function DataExport() {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
@@ -117,25 +125,6 @@ function DataExport() {
     const [batchSize, setBatchSize] = useState(100);
     const [dateRange, setDateRange] = useState(null);
     const [activeTab, setActiveTab] = useState('export');
-    const [format, setFormat] = useState('csv');
-    const [formatOptions, setFormatOptions] = useState([
-        { label: 'CSV', value: 'csv', description: '适用于表格数据，支持Excel打开' },
-        { label: 'JSON', value: 'json', description: '适用于结构化数据，支持程序处理' },
-        { label: 'Excel', value: 'xlsx', description: '支持多sheet和复杂格式' },
-        { label: '自定义格式', value: 'custom', description: '可根据需求自定义数据格式' }
-    ]);
-    const [formatIcons, setFormatIcons] = useState({
-        csv: <FileTextOutlined />,
-        json: <FileTextOutlined />,
-        xlsx: <FileTextOutlined />,
-        custom: <FileTextOutlined />
-    });
-    const [filters, setFilters] = useState({
-        domain: null,
-        keyword: null,
-        start_date: null,
-        end_date: null
-    });
 
     // 获取导出历史
     const fetchExportHistory = async () => {
@@ -331,10 +320,6 @@ function DataExport() {
         }
     ];
 
-    const onExport = () => {
-        // Implementation of onExport function
-    };
-
     return (
         <div className="data-export">
             <Row gutter={[16, 16]}>
@@ -363,140 +348,31 @@ function DataExport() {
                                     key: 'export',
                                     label: '导出到文件',
                                     children: (
-                                        <Form layout="vertical">
-                                            <Title level={5}>选择导出格式</Title>
-                                            <div className="export-format-selector">
-                                                {formatOptions.map(option => (
-                                                    <div 
-                                                        key={option.value}
-                                                        className={`export-format-option ${format === option.value ? 'selected' : ''}`}
-                                                        onClick={() => setFormat(option.value)}
-                                                    >
-                                                        <div className="format-icon">
-                                                            {formatIcons[option.value] || <FileTextOutlined />}
-                                                        </div>
-                                                        <div className="format-label">{option.label}</div>
-                                                        <div className="format-desc">{option.description}</div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            
-                                            <Divider />
-                                            
-                                            <Title level={5}><FilterOutlined /> 筛选条件</Title>
-                                            <Row gutter={[16, 16]}>
-                                                <Col span={12}>
-                                                    <Form.Item label="站点选择">
-                                                        <Select
-                                                            placeholder="选择站点"
-                                                            allowClear
-                                                            style={{ width: '100%' }}
-                                                            onChange={(value) => setFilters({ ...filters, domain: value })}
-                                                        >
-                                                            <Option value="www.gzlps.gov.cn">www.gzlps.gov.cn</Option>
-                                                            <Option value="jyj.gzlps.gov.cn">jyj.gzlps.gov.cn</Option>
-                                                            <Option value="zjj.gzlps.gov.cn">zjj.gzlps.gov.cn</Option>
-                                                        </Select>
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col span={12}>
-                                                    <Form.Item label="时间范围">
-                                                        <RangePicker
-                                                            style={{ width: '100%' }}
-                                                            onChange={(dates) => {
-                                                                if (dates) {
-                                                                    setFilters({
-                                                                        ...filters,
-                                                                        start_date: dates[0]?.format('YYYY-MM-DD'),
-                                                                        end_date: dates[1]?.format('YYYY-MM-DD')
-                                                                    });
-                                                                } else {
-                                                                    setFilters({
-                                                                        ...filters,
-                                                                        start_date: null,
-                                                                        end_date: null
-                                                                    });
-                                                                }
-                                                            }}
-                                                        />
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col span={24}>
-                                                    <Form.Item label="关键词搜索">
-                                                        <Input.Search
-                                                            placeholder="搜索关键词"
-                                                            allowClear
-                                                            onSearch={(value) => setFilters({ ...filters, keyword: value })}
-                                                        />
-                                                    </Form.Item>
-                                                </Col>
-                                            </Row>
-                                            
-                                            {(filters.domain || filters.keyword || filters.start_date) && (
-                                                <div style={{ marginBottom: 16 }}>
-                                                    <Text style={{ marginRight: 8 }}>已选筛选条件:</Text>
-                                                    {filters.domain && (
-                                                        <Tag className="filter-tag" closable onClose={() => setFilters({ ...filters, domain: null })}>
-                                                            站点: {filters.domain}
-                                                        </Tag>
-                                                    )}
-                                                    {filters.keyword && (
-                                                        <Tag className="filter-tag" closable onClose={() => setFilters({ ...filters, keyword: null })}>
-                                                            关键词: {filters.keyword}
-                                                        </Tag>
-                                                    )}
-                                                    {filters.start_date && (
-                                                        <Tag className="filter-tag" closable 
-                                                            onClose={() => setFilters({ ...filters, start_date: null, end_date: null })}>
-                                                            时间: {filters.start_date} 至 {filters.end_date}
-                                                        </Tag>
-                                                    )}
-                                                </div>
-                                            )}
-                                            
-                                            <Divider />
-
-                                            <Form.Item>
-                                                <Button
-                                                    type="primary"
-                                                    size="large"
-                                                    onClick={onExport}
-                                                    loading={loading}
-                                                    icon={<CloudDownloadOutlined />}
-                                                >
-                                                    导出数据
-                                                </Button>
-                                            </Form.Item>
-                                        </Form>
-                                    )
-                                },
-                                {
-                                    key: 'api',
-                                    label: '提交到API',
-                                    children: (
                                         <Form
                                             form={form}
-                                            name="api_submit_form"
-                                            onFinish={handleSubmitToApi}
+                                            name="export_form"
+                                            onFinish={handleExport}
                                             layout="vertical"
                                         >
                                             <Form.Item
-                                                name="api_url"
-                                                label="API地址"
-                                                rules={[
-                                                    { required: true, message: '请输入API地址' },
-                                                    { type: 'url', message: '请输入有效的URL地址' }
-                                                ]}
+                                                name="format"
+                                                label="导出格式"
+                                                rules={[{ required: true, message: '请选择导出格式' }]}
                                             >
-                                                <Input placeholder="请输入API地址" />
-                                            </Form.Item>
-
-                                            <Form.Item
-                                                name="api_key"
-                                                label="API密钥"
-                                                rules={[{ required: true, message: '请输入API密钥' }]}
-                                            >
-                                                <Input.Password placeholder="请输入API密钥" />
+                                                <Select
+                                                    placeholder="选择导出格式"
+                                                    options={[
+                                                        { label: 'CSV', value: 'csv' },
+                                                        { label: 'JSON', value: 'json' },
+                                                        { label: 'Excel', value: 'xlsx' },
+                                                        { label: '自定义格式', value: 'custom' }
+                                                    ]}
+                                                    onChange={(value) => {
+                                                        if (value === 'custom') {
+                                                            setShowCustomFormatModal(true);
+                                                        }
+                                                    }}
+                                                />
                                             </Form.Item>
 
                                             <Form.Item
@@ -540,49 +416,108 @@ function DataExport() {
                                                 </Form.Item>
                                             )}
 
+                                            <Form.Item>
+                                                <Button
+                                                    type="primary"
+                                                    htmlType="submit"
+                                                    loading={loading}
+                                                    icon={<DownloadOutlined />}
+                                                >
+                                                    开始导出
+                                                </Button>
+                                            </Form.Item>
+                                        </Form>
+                                    )
+                                },
+                                {
+                                    key: 'api',
+                                    label: '提交到API',
+                                    children: (
+                                        <Form
+                                            form={form}
+                                            name="api_submit_form"
+                                            onFinish={handleSubmitToApi}
+                                            layout="vertical"
+                                        >
                                             <Form.Item
-                                                name="data_structure"
-                                                label="数据结构模板"
-                                                rules={[{ required: true, message: '请输入数据结构模板' }]}
-                                                tooltip="使用 {field} 标记文档字段，例如：{title} 表示文章标题"
+                                                name="api_url"
+                                                label="API地址"
+                                                rules={[
+                                                    { required: true, message: '请输入API地址' },
+                                                    { type: 'url', message: '请输入有效的URL地址' }
+                                                ]}
                                             >
-                                                <TextArea
-                                                    rows={6}
-                                                    placeholder={`{
-  "title": "{title}",
-  "content": "{content}",
-  "publish_date": "{publish_date}",
-  "department": "{department}",
-  "attachments": "{attachments}"
-}`}
+                                                <Input placeholder="请输入API地址" />
+                                            </Form.Item>
+
+                                            <Form.Item
+                                                name="api_key"
+                                                label="API密钥"
+                                                rules={[{ required: true, message: '请输入API密钥' }]}
+                                            >
+                                                <Input.Password placeholder="请输入API密钥" />
+                                            </Form.Item>
+
+                                            <Form.Item
+                                                name="format"
+                                                label="数据格式"
+                                                rules={[{ required: true, message: '请选择数据格式' }]}
+                                            >
+                                                <Select
+                                                    placeholder="选择数据格式"
+                                                    options={[
+                                                        { label: 'JSON', value: 'json' },
+                                                        { label: 'XML', value: 'xml' },
+                                                        { label: '自定义格式', value: 'custom' }
+                                                    ]}
+                                                    onChange={(value) => {
+                                                        if (value === 'custom') {
+                                                            setShowCustomFormatModal(true);
+                                                        }
+                                                    }}
                                                 />
                                             </Form.Item>
 
                                             <Form.Item
-                                                name="request_method"
-                                                label="请求方法"
-                                                rules={[{ required: true, message: '请选择请求方法' }]}
+                                                name="date_range"
+                                                label="数据时间范围"
+                                                rules={[{ required: true, message: '请选择数据时间范围' }]}
                                             >
-                                                <Radio.Group>
-                                                    <Radio value="POST">POST</Radio>
-                                                    <Radio value="PUT">PUT</Radio>
-                                                    <Radio value="PATCH">PATCH</Radio>
+                                                <RangePicker
+                                                    showTime
+                                                    onChange={(dates) => setDateRange(dates)}
+                                                />
+                                            </Form.Item>
+
+                                            <Form.Item
+                                                name="submission_mode"
+                                                label="提交方式"
+                                                rules={[{ required: true, message: '请选择提交方式' }]}
+                                            >
+                                                <Radio.Group
+                                                    onChange={(e) => setSubmissionMode(e.target.value)}
+                                                    value={submissionMode}
+                                                >
+                                                    <Radio value="single">单条提交</Radio>
+                                                    <Radio value="batch">批次提交</Radio>
                                                 </Radio.Group>
                                             </Form.Item>
 
-                                            <Form.Item
-                                                name="headers"
-                                                label="请求头"
-                                                tooltip="可选，添加自定义请求头，格式为JSON"
-                                            >
-                                                <TextArea
-                                                    rows={3}
-                                                    placeholder={`{
-  "Content-Type": "application/json",
-  "Authorization": "Bearer your-token"
-}`}
-                                                />
-                                            </Form.Item>
+                                            {submissionMode === 'batch' && (
+                                                <Form.Item
+                                                    name="batch_size"
+                                                    label="批次大小"
+                                                    rules={[{ required: true, message: '请输入批次大小' }]}
+                                                >
+                                                    <InputNumber
+                                                        min={1}
+                                                        max={1000}
+                                                        value={batchSize}
+                                                        onChange={setBatchSize}
+                                                        style={{ width: '100%' }}
+                                                    />
+                                                </Form.Item>
+                                            )}
 
                                             <Form.Item>
                                                 <Button
