@@ -41,7 +41,8 @@ import {
     ArrowDownOutlined,
     FileImageOutlined,
     AlertOutlined,
-    InfoCircleOutlined
+    InfoCircleOutlined,
+    ApiOutlined
 } from '@ant-design/icons';
 import { crawlerAPI } from '../api';
 import moment from 'moment';
@@ -270,6 +271,9 @@ function Dashboard() {
         performanceData: mockChartData.performanceData
     });
 
+    // 添加爬虫服务状态状态变量
+    const [crawlerServiceStatus, setCrawlerServiceStatus] = useState('offline');
+
     // 初始加载数据
     useEffect(() => {
         // 首次加载，不显示loading状态，静默加载
@@ -338,6 +342,19 @@ function Dashboard() {
             // 获取爬虫状态
             const statusRes = await crawlerAPI.getStatus();
             setStatus(statusRes.data);
+
+            // 检查爬虫服务心跳
+            try {
+                console.log('发送爬虫服务心跳检测请求...');
+                const heartbeatRes = await crawlerAPI.heartbeat();
+                console.log('爬虫服务心跳检测响应:', heartbeatRes);
+                console.log('设置爬虫服务状态为在线');
+                setCrawlerServiceStatus('online');
+            } catch (error) {
+                console.error('爬虫服务心跳检测失败:', error);
+                console.log('设置爬虫服务状态为离线');
+                setCrawlerServiceStatus('offline');
+            }
 
             // 获取爬取统计
             const statsRes = await crawlerAPI.getStats();
@@ -568,6 +585,26 @@ function Dashboard() {
         setDateRange(dates);
     };
 
+    const checkCrawlerServiceStatus = async () => {
+        try {
+            console.log('发送爬虫服务心跳检测请求...');
+            const heartbeatRes = await crawlerAPI.heartbeat();
+            console.log('爬虫服务心跳检测响应:', heartbeatRes);
+            console.log('设置爬虫服务状态为在线');
+            setCrawlerServiceStatus('online');
+        } catch (error) {
+            console.error('爬虫服务心跳检测失败:', error);
+            console.log('设置爬虫服务状态为离线');
+            setCrawlerServiceStatus('offline');
+        }
+    };
+
+    const toggleCrawlerServiceStatus = () => {
+        const newStatus = crawlerServiceStatus === 'online' ? 'offline' : 'online';
+        console.log(`切换爬虫服务状态为: ${newStatus}`);
+        setCrawlerServiceStatus(newStatus);
+    };
+
     return (
         <DashboardContainer>
             <div className="dashboard-header">
@@ -595,6 +632,12 @@ function Dashboard() {
                         loading={loading}
                     >
                         刷新数据
+                    </Button>
+                    <Button 
+                        icon={<ReloadOutlined />} 
+                        onClick={toggleCrawlerServiceStatus}
+                    >
+                        切换爬虫服务状态
                     </Button>
                 </Space>
             </div>
@@ -634,19 +677,38 @@ function Dashboard() {
                     <Col xs={24} sm={12} md={6}>
                         <Card className="status-card">
                             <Statistic
+                                title={<span>API状态 <Button type="link" size="small" icon={<ReloadOutlined />} onClick={checkCrawlerServiceStatus} /></span>}
+                                value={crawlerServiceStatus === 'online' ? '已连接' : '未连接'}
+                                prefix={<ApiOutlined />}
+                                valueStyle={{ 
+                                    color: crawlerServiceStatus === 'online' ? '#52c41a' : '#f5222d'
+                                }}
+                            />
+                            <div className="status-detail">
+                                <Badge
+                                    status={crawlerServiceStatus === 'online' ? 'success' : 'error'}
+                                    text={
+                                        <Text type="secondary">
+                                            爬虫服务状态: {crawlerServiceStatus === 'online' ? '在线' : '离线'}
+                                        </Text>
+                                    }
+                                />
+                            </div>
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={12} md={6}>
+                        <Card className="status-card">
+                            <Statistic
                                 title="已爬取URL"
                                 value={status.visited_urls || 0}
                                 prefix={<LinkOutlined />}
                                 valueStyle={{ color: '#1890ff' }}
                             />
                             <div className="status-detail">
-                                <Progress 
-                                    percent={Math.min(100, Math.round((status.visited_urls || 0) / (status.max_urls || 100) * 100))} 
-                                    size="small" 
-                                    status="active" 
-                                    showInfo={false} 
-                                />
-                        </div>
+                                <Text type="secondary">
+                                    进度 {Math.min(100, Math.round((status.visited_urls || 0) / (status.max_urls || 100) * 100))}% (总计: {status.max_urls || 100})
+                                </Text>
+                            </div>
                         </Card>
                     </Col>
                     <Col xs={24} sm={12} md={6}>
@@ -660,21 +722,6 @@ function Dashboard() {
                             <div className="status-detail">
                                 <Text type="secondary">
                                     约占URL的{Math.round((status.articles_found || 0) / (status.visited_urls || 1) * 100)}%
-                                </Text>
-                    </div>
-                </Card>
-                    </Col>
-                    <Col xs={24} sm={12} md={6}>
-                        <Card className="status-card">
-                            <Statistic
-                                title="子站点数"
-                                value={status.subdomains_found || 0}
-                                prefix={<GlobalOutlined />}
-                                valueStyle={{ color: '#722ed1' }}
-                            />
-                            <div className="status-detail">
-                                <Text type="secondary">
-                                    已爬取: {subdomains.filter(s => s.crawled).length} 个
                                 </Text>
                         </div>
                     </Card>

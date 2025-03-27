@@ -14,9 +14,12 @@ const api = axios.create({
 
 // 爬虫相关API
 export const crawlerAPI = {
-    // 获取爬虫状态
-    getStatus: () => api.get('/api/crawler/status'),
-
+    // 获取系统状态
+    getStatus: () => api.get('/api/system/status'),
+    
+    // 爬虫服务心跳检测
+    heartbeat: () => api.get('/api/crawler/heartbeat'),
+    
     // 启动爬虫
     startCrawler: (config) => api.post('/api/crawler/start', config),
 
@@ -153,13 +156,16 @@ export const llmAPI = {
     testConnection: (config) => api.post('/api/llm/test-connection', config),
     
     // 获取可用模型列表
-    getAvailableModels: (provider) => api.get(`/api/llm/models/${provider}`),
+    getAvailableModels: (provider) => api.get(`/api/llm/models?provider=${provider}`),
     
     // 获取模型参数配置
-    getModelParams: (model) => api.get(`/api/llm/model-params/${model}`),
+    getModelParams: (model) => api.get(`/api/llm/model-params?model=${model}`),
     
     // 保存模型参数配置
-    saveModelParams: (model, params) => api.post(`/api/llm/model-params/${model}`, params)
+    saveModelParams: (model, params) => api.post(`/api/llm/model-params?model=${model}`, params),
+    
+    // 获取后端服务的LLM配置
+    getServerConfigs: () => api.get('/api/llm-service/configs')
 };
 
 // 向量化服务相关API

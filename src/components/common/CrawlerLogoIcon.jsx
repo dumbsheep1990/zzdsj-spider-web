@@ -66,7 +66,7 @@ const SvgContainer = styled.div`
 
 function CrawlerLogoIcon({ size = 40, color = '#1677ff', animate = false }) {
     return (
-        <SvgContainer size={size} animate={animate}>
+        <SvgContainer size={size} animate={animate ? 'true' : 'false'}>
             <svg
                 viewBox="0 0 100 100"
                 fill="none"
